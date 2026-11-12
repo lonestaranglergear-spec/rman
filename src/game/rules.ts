@@ -1,19 +1,85 @@
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
-export interface StarCalcInput {
-  won: boolean;
-  score: number;
-  maxScore: number;
+export interface WatchSpec {
+  caseFinish: 'steel-silver' | 'gunmetal-black' | 'rose-gold-tone' | 'gold-tone';
+  dialColor: 'navy' | 'black' | 'silver-white' | 'royal-blue-sunburst' | 'forest-green' | 'slate-grey';
+  indices: 'baton' | 'roman' | 'dots' | 'numerals-12';
+  hands: 'baton' | 'leaf' | 'sword';
+  subdial: 'none' | 'small-seconds' | 'chronograph-two';
+  dateWindow: boolean;
+  strap: 'black-leather' | 'brown-leather' | 'navy-leather' | 'steel-bracelet' | 'mesh' | 'black-rubber';
+  time?: { h: number; m: number; s?: number };
+}
+
+export const WATCH_ATTR_POOL: Record<keyof Omit<WatchSpec, 'time'>, any[]> = {
+  caseFinish: ['steel-silver', 'gunmetal-black', 'rose-gold-tone', 'gold-tone'],
+  dialColor: ['navy', 'black', 'silver-white', 'royal-blue-sunburst', 'forest-green', 'slate-grey'],
+  indices: ['baton', 'roman', 'dots', 'numerals-12'],
+  hands: ['baton', 'leaf', 'sword'],
+  subdial: ['none', 'small-seconds', 'chronograph-two'],
+  dateWindow: [true, false],
+  strap: ['black-leather', 'brown-leather', 'navy-leather', 'steel-bracelet', 'mesh', 'black-rubber'],
+};
+
+export function specsEqual(a: WatchSpec, b: WatchSpec): boolean {
+  return (
+    a.caseFinish === b.caseFinish &&
+    a.dialColor === b.dialColor &&
+    a.indices === b.indices &&
+    a.hands === b.hands &&
+    a.subdial === b.subdial &&
+    a.dateWindow === b.dateWindow &&
+    a.strap === b.strap
+  );
+}
+
+export function countSpecDiffs(a: WatchSpec, b: WatchSpec): number {
+  let diffs = 0;
+  if (a.caseFinish !== b.caseFinish) diffs++;
+  if (a.dialColor !== b.dialColor) diffs++;
+  if (a.indices !== b.indices) diffs++;
+  if (a.hands !== b.hands) diffs++;
+  if (a.subdial !== b.subdial) diffs++;
+  if (a.dateWindow !== b.dateWindow) diffs++;
+  if (a.strap !== b.strap) diffs++;
+  return diffs;
+}
+
+export function diffSpec(
+  baseSpec: WatchSpec,
+  n: number,
+  allowedAttrs?: Array<keyof Omit<WatchSpec, 'time'>>,
+  rng: () => number = Math.random
+): WatchSpec {
+  const attrs = (allowedAttrs && allowedAttrs.length > 0
+    ? [...allowedAttrs]
+    : (Object.keys(WATCH_ATTR_POOL) as Array<keyof Omit<WatchSpec, 'time'>>));
+  // Shuffle attributes
+  for (let i = attrs.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [attrs[i], attrs[j]] = [attrs[j], attrs[i]];
+  }
+  const count = Math.max(1, Math.min(n, attrs.length));
+  const picked = attrs.slice(0, count);
+  const copy: WatchSpec = {
+    ...baseSpec,
+    time: baseSpec.time ? { ...baseSpec.time } : { h: 10, m: 10, s: 30 },
+  };
+  for (const attr of picked) {
+    const choices = WATCH_ATTR_POOL[attr].filter((v) => v !== baseSpec[attr]);
+    if (choices.length > 0) {
+      (copy as any)[attr] = choices[Math.floor(rng() * choices.length)];
+    }
+  }
+  return copy;
 }
 
 /**
  * Stars rule (all games):
- * 1 star = win
- * 2 stars = win with a score >= 60% of the max
- * 3 stars = win with a score >= 85% of the max
- * A loss gives 0 stars.
+ * win = 1 star; win with score >= 60% of maxScore = 2 stars; >= 85% = 3 stars; loss = 0 stars.
  */
-export function calculateStars({ won, score, maxScore }: StarCalcInput): number {
+export function calculateStars(params: { won: boolean; score: number; maxScore: number }): number {
+  const { won, score, maxScore } = params;
   if (!won) return 0;
   if (maxScore <= 0) return 1;
   const ratio = score / maxScore;
@@ -23,37 +89,59 @@ export function calculateStars({ won, score, maxScore }: StarCalcInput): number 
 }
 
 /**
- * Game 1: Style Brief scoring
- * +100 per matching slot, +50 "Perfect Look" bonus,
- * +time bonus (remaining seconds * 5), +25 per combo level for consecutive perfect looks (combo capped at x4).
+ * Game 1: Watch Match Challenge scoring
+ * +100 per correct answer + speed bonus up to +100 (remainingTime / roundTime * 100)
+ * + streak bonus (+10 per consecutive correct, capped at +50).
+ * Easy retry gives half points.
  */
-export function scoreStyleBriefSubmission(params: {
-  totalSlots: number;
-  matchingSlots: number;
-  extraRulePassed: boolean;
+export function scoreWatchMatchRound(params: {
+  remainingTime: number;
+  roundTime: number;
+  consecutiveCorrectAfterAnswer: number;
+  usedRetry: boolean;
+}): { points: number; speedBonus: number; streakBonus: number } {
+  const { remainingTime, roundTime, consecutiveCorrectAfterAnswer, usedRetry } = params;
+  const ratio = Math.max(0, Math.min(1, roundTime > 0 ? remainingTime / roundTime : 0));
+  const speedBonus = Math.round(ratio * 100);
+  const streakBonus = Math.min(50, Math.max(0, consecutiveCorrectAfterAnswer) * 10);
+  const raw = 100 + speedBonus + streakBonus;
+  const points = usedRetry ? Math.round(raw * 0.5) : raw;
+  return { points, speedBonus, streakBonus };
+}
+
+/**
+ * Game 2: Build Your Style scoring
+ * +100 per satisfied rule; +50 Harmony bonus if strap matches outfit palette;
+ * + time bonus (remaining seconds * 3).
+ * Passed when >= 60% of rules are satisfied.
+ */
+export function scoreStyleBuild(params: {
+  totalRules: number;
+  satisfiedRules: number;
+  harmonyMatched: boolean;
   remainingSeconds: number;
-  currentCombo: number;
-}): { points: number; isPerfect: boolean; nextCombo: number } {
-  const { totalSlots, matchingSlots, extraRulePassed, remainingSeconds, currentCombo } = params;
-  const isPerfect = matchingSlots === totalSlots && extraRulePassed;
-  const nextCombo = isPerfect ? Math.min(4, currentCombo + 1) : 0;
-  const slotPoints = matchingSlots * 100;
-  const perfectBonus = isPerfect ? 50 : 0;
-  const timeBonus = isPerfect || matchingSlots > 0 ? Math.max(0, Math.floor(remainingSeconds) * 5) : 0;
-  const comboBonus = isPerfect ? nextCombo * 25 : 0;
+}): { points: number; passed: boolean; rulePoints: number; harmonyPoints: number; timeBonus: number } {
+  const { totalRules, satisfiedRules, harmonyMatched, remainingSeconds } = params;
+  const passed = totalRules > 0 ? satisfiedRules / totalRules >= 0.6 : true;
+  const rulePoints = satisfiedRules * 100;
+  const harmonyPoints = harmonyMatched ? 50 : 0;
+  const timeBonus = passed ? Math.max(0, Math.floor(remainingSeconds) * 3) : 0;
   return {
-    points: slotPoints + perfectBonus + timeBonus + comboBonus,
-    isPerfect,
-    nextCombo,
+    points: rulePoints + harmonyPoints + timeBonus,
+    passed,
+    rulePoints,
+    harmonyPoints,
+    timeBonus,
   };
 }
 
 /**
- * Game 2: Tag Match scoring
- * +100 per matched pair, streak multiplier (x1, x2, x3 up to x4),
- * time bonus (remaining seconds * 3), and -10 per mismatch (never below zero).
+ * Game 3: Timepiece Memory scoring
+ * +100 per matched pair * streak multiplier (x1, x2, x3, max x4);
+ * -10 per mismatch (never below 0);
+ * time bonus at win = remainingSeconds * 3.
  */
-export function applyTagMatchTurn(params: {
+export function applyMemoryTurn(params: {
   currentScore: number;
   currentStreak: number;
   isMatch: boolean;
@@ -62,55 +150,39 @@ export function applyTagMatchTurn(params: {
   if (isMatch) {
     const nextStreak = Math.min(4, currentStreak + 1);
     const delta = 100 * nextStreak;
-    return {
-      score: currentScore + delta,
-      streak: nextStreak,
-      delta,
-    };
-  } else {
-    const nextScore = Math.max(0, currentScore - 10);
-    return {
-      score: nextScore,
-      streak: 0,
-      delta: nextScore - currentScore,
-    };
+    return { score: currentScore + delta, streak: nextStreak, delta };
   }
+  const nextScore = Math.max(0, currentScore - 10);
+  return { score: nextScore, streak: 0, delta: nextScore - currentScore };
 }
 
 /**
- * Game 3: Dhaka Dash fair obstacle lane generator
- * Never spawn an unavoidable obstacle layout (always leave at least one passable lane out of 0, 1, 2).
+ * Game 4: Beat the Clock SET mode time difference (in minutes on a 12-hour dial)
+ * Evaluates shortest distance on a 12-hour (720-minute) cycle.
  */
-export function validatePassableLanes(blockedLanes: number[]): boolean {
-  const uniqueBlocked = new Set(blockedLanes.filter((l) => l >= 0 && l <= 2));
-  return uniqueBlocked.size < 3;
+export function isDialTimeWithinTolerance(
+  target: { h: number; m: number },
+  actual: { h: number; m: number },
+  toleranceMinutes: number
+): boolean {
+  const normTarget = ((target.h % 12) * 60 + target.m + 720) % 720;
+  const normActual = ((actual.h % 12) * 60 + actual.m + 720) % 720;
+  const diff = Math.abs(normTarget - normActual);
+  const circularDiff = Math.min(diff, 720 - diff);
+  return circularDiff <= toleranceMinutes;
 }
 
-/**
- * Game 4: Rack Sorter scoring & sequence generator
- * +10 per correct item, combo multiplier rises every 5 consecutive correct sends (up to x5),
- * speed bonus for fast sends.
- */
-export function calculateRackSorterSendScore(params: {
-  consecutiveCorrectAfterSend: number;
-  itemProgressRatio: number; // 0 = start of belt, 1 = end of belt
-}): { points: number; multiplier: number; speedBonus: number } {
-  const { consecutiveCorrectAfterSend, itemProgressRatio } = params;
-  const multiplier = Math.min(5, 1 + Math.floor(consecutiveCorrectAfterSend / 5));
-  const speedBonus = itemProgressRatio < 0.45 ? 5 : itemProgressRatio < 0.7 ? 2 : 0;
-  const points = 10 * multiplier + speedBonus;
-  return { points, multiplier, speedBonus };
-}
-
-export function hasMoreThanThreeInARow<T>(items: T[]): boolean {
-  let run = 1;
-  for (let i = 1; i < items.length; i++) {
-    if (items[i] === items[i - 1]) {
-      run++;
-      if (run > 3) return true;
-    } else {
-      run = 1;
-    }
-  }
-  return false;
+export function scoreBeatTheClockAnswer(params: {
+  roundElapsedSeconds: number;
+  consecutiveCorrectAfterAnswer: number;
+}): { points: number; speedBonus: number; streakBonus: number } {
+  const { roundElapsedSeconds, consecutiveCorrectAfterAnswer } = params;
+  const ratio = Math.max(0, Math.min(1, 1 - roundElapsedSeconds / 8));
+  const speedBonus = Math.round(ratio * 50);
+  const streakBonus = Math.min(50, Math.max(0, consecutiveCorrectAfterAnswer) * 10);
+  return {
+    points: 100 + speedBonus + streakBonus,
+    speedBonus,
+    streakBonus,
+  };
 }

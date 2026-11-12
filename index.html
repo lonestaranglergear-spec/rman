@@ -1,0 +1,5116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>rman — Play</title>
+  <meta name="description" content="rman — Men's fashion · Dhaka, Bangladesh. Four minimalist fashion mini-games." />
+  <meta property="og:title" content="rman — Play" />
+  <meta property="og:description" content="Play the rman way. Four mini-games from rman · Men's fashion · Dhaka, Bangladesh." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link id="favicon-link" rel="icon" type="image/jpeg" href="data:," />
+  <style>
+    :root {
+      --ink: #1C1C1C;
+      --paper: #FFFFFF;
+      --bone: #F4F4F2;
+      --smoke: #E6E6E3;
+      --ash: #9A9A9A;
+      --graphite: #2E2E2E;
+      --signal: #FF4D2E;
+      --good: #2BB673;
+      --bad: #E5484D;
+      --font-sans: "Poppins", "Quicksand", "Nunito", "Segoe UI", system-ui, "Noto Sans Bengali", "Hind Siliguri", sans-serif;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100dvh;
+      background-color: var(--bone);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      font-weight: 400;
+      line-height: 1.5;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body[data-state="playing"],
+    body[data-state="paused"],
+    body[data-state="countdown"] {
+      overflow: hidden;
+      height: 100dvh;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* Typography */
+    h1, h2, h3, h4, .brand-title {
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: lowercase;
+      text-wrap: balance;
+    }
+
+    .live-wordmark {
+      font-family: var(--font-sans);
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: lowercase;
+      color: var(--ink);
+      line-height: 1;
+    }
+
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;
+    }
+
+    .score-num {
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Buttons */
+    button, .btn {
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      border-radius: 999px;
+      min-height: 48px;
+      padding: 0 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 180ms var(--ease-out), box-shadow 180ms var(--ease-out), background-color 180ms var(--ease-out), color 180ms var(--ease-out), border-color 180ms var(--ease-out);
+      text-decoration: none;
+      white-space: nowrap;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
+      outline: 3px solid var(--signal);
+      outline-offset: 3px;
+    }
+
+    button:active:not(:disabled), .btn:active {
+      transform: scale(0.97);
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background-color: var(--ink);
+      color: var(--paper);
+      border-color: var(--ink);
+    }
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(28, 28, 28, 0.18);
+    }
+    .btn-primary:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    .btn-secondary {
+      background-color: var(--paper);
+      color: var(--ink);
+      border: 2px solid var(--ink);
+    }
+    .btn-secondary:hover:not(:disabled) {
+      background-color: var(--bone);
+      transform: translateY(-1px);
+    }
+    .btn-secondary:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    .btn-signal {
+      background-color: var(--signal);
+      color: var(--paper);
+      border-color: var(--signal);
+    }
+    .btn-signal:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(255, 77, 46, 0.32);
+    }
+    .btn-signal:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    .btn-ghost-dark {
+      background-color: rgba(255, 255, 255, 0.08);
+      color: var(--paper);
+      border: 1.5px solid rgba(255, 255, 255, 0.24);
+    }
+    .btn-ghost-dark:hover:not(:disabled) {
+      background-color: rgba(255, 255, 255, 0.16);
+    }
+
+    .icon-btn {
+      min-width: 48px;
+      min-height: 48px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: var(--paper);
+      color: var(--ink);
+      border: 1.5px solid var(--smoke);
+    }
+    .icon-btn:hover {
+      border-color: var(--ink);
+    }
+
+    /* Official Logo Styling (strictly respecting Section 2 rules) */
+    .logo-tile-wrap {
+      padding: 28%; /* >= 25% clear space around logo width */
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-tile {
+      width: clamp(112px, 24vw, 156px);
+      height: clamp(112px, 24vw, 156px);
+      display: block;
+      object-fit: contain;
+      border-radius: 0;
+    }
+
+    .logo-avatar-wrap {
+      padding: 8px; /* Clear space around circular logo */
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .logo-circle {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      background-color: var(--ink);
+    }
+
+    /* Screen Management & Transitions */
+    .screen {
+      display: none;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 300ms var(--ease-out), transform 300ms var(--ease-out);
+    }
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* A) SPLASH SCREEN */
+    #screen-splash {
+      min-height: 100dvh;
+      width: 100%;
+      background-color: var(--ink);
+      color: var(--paper);
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .watermark-bg {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      user-select: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .watermark-bg span {
+      font-size: clamp(8rem, 32vw, 24rem);
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: lowercase;
+      opacity: 0.035;
+      line-height: 0.85;
+      white-space: nowrap;
+    }
+
+    .splash-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 420px;
+      width: 100%;
+      gap: 20px;
+      animation: splashEnter 650ms var(--ease-out) both;
+    }
+
+    @keyframes splashEnter {
+      from {
+        opacity: 0;
+        transform: scale(0.92) translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .splash-tagline {
+      font-size: clamp(0.9rem, 2.5vw, 1.05rem);
+      color: var(--ash);
+      letter-spacing: 0.14em;
+      text-transform: lowercase;
+      margin-top: -12px;
+      margin-bottom: 12px;
+    }
+
+    .splash-cta {
+      min-width: 200px;
+      min-height: 54px;
+      font-size: 1.05rem;
+    }
+
+    .splash-key-hint {
+      font-size: 0.78rem;
+      color: var(--ash);
+      letter-spacing: 0.05em;
+      margin-top: 8px;
+    }
+
+    /* B) HOME / DASHBOARD SCREEN */
+    #screen-home {
+      min-height: 100dvh;
+      background-color: var(--bone);
+      position: relative;
+    }
+
+    .site-header {
+      background-color: var(--paper);
+      border-bottom: 1px solid var(--smoke);
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    @media (min-width: 480px) {
+      .header-inner {
+        padding: 8px 20px;
+        gap: 12px;
+      }
+    }
+
+    .brand-lockup {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      background: none;
+      border: none;
+      padding: 0;
+      min-height: 48px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .brand-lockup .live-wordmark {
+      font-size: clamp(1.12rem, 4vw, 1.35rem);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    #btn-lang-toggle {
+      padding: 0 12px;
+      font-size: 0.82rem;
+    }
+
+    .stars-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0 10px;
+      min-height: 44px;
+      border-radius: 999px;
+      background-color: var(--bone);
+      border: 1px solid var(--smoke);
+      font-size: 0.82rem;
+      color: var(--ink);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* Hero Section - Alternating High-Contrast Lookbook Block */
+    .hero-section {
+      background-color: var(--ink);
+      color: var(--paper);
+      position: relative;
+      overflow: hidden;
+      padding: clamp(36px, 6vw, 68px) 20px;
+      border-bottom: 1px solid var(--graphite);
+    }
+
+    .hero-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .hero-kicker {
+      font-size: 0.82rem;
+      color: var(--ash);
+      letter-spacing: 0.12em;
+      text-transform: lowercase;
+    }
+
+    .hero-headline {
+      font-size: clamp(2.1rem, 5vw, 3.6rem);
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      line-height: 1.08;
+      color: var(--paper);
+    }
+
+    .hero-subline {
+      font-size: clamp(1rem, 2.2vw, 1.2rem);
+      color: var(--smoke);
+      letter-spacing: 0.03em;
+      max-width: 52ch;
+    }
+
+    .hero-meta-row {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px;
+      font-size: 0.88rem;
+      color: var(--ash);
+    }
+
+    /* Dashboard Grid Section (White/Bone Lookbook Section) */
+    .dashboard-section {
+      flex: 1;
+      padding: clamp(28px, 5vw, 52px) 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dashboard-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    @media (min-width: 720px) {
+      .games-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+      }
+    }
+
+    .game-card {
+      background-color: var(--paper);
+      border: 1px solid var(--smoke);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+      box-shadow: 0 4px 16px rgba(28, 28, 28, 0.04);
+      transition: transform 260ms var(--ease-out), box-shadow 260ms var(--ease-out), border-color 260ms var(--ease-out);
+      cursor: pointer;
+      text-align: left;
+      position: relative;
+      overflow: hidden;
+      white-space: normal;
+      animation: cardStagger 420ms var(--ease-out) both;
+    }
+
+    .game-card:nth-child(1) { animation-delay: 40ms; }
+    .game-card:nth-child(2) { animation-delay: 100ms; }
+    .game-card:nth-child(3) { animation-delay: 160ms; }
+    .game-card:nth-child(4) { animation-delay: 220ms; }
+
+    @keyframes cardStagger {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .game-card:hover {
+      transform: translateY(-4px) rotate(-0.25deg);
+      box-shadow: 0 14px 30px rgba(28, 28, 28, 0.09);
+      border-color: var(--ink);
+    }
+
+    .card-top-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-illustration {
+      width: 100%;
+      height: 132px;
+      background-color: var(--bone);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--smoke);
+      overflow: hidden;
+    }
+
+    .card-illustration svg {
+      width: 100%;
+      height: 100%;
+      max-width: 240px;
+    }
+
+    .card-number {
+      font-size: 0.78rem;
+      color: var(--ash);
+      letter-spacing: 0.08em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .difficulty-dots {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .difficulty-dots span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: var(--ink);
+    }
+    .difficulty-dots span.muted {
+      background-color: var(--smoke);
+    }
+
+    .card-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: 0.04em;
+      text-transform: lowercase;
+      white-space: normal;
+    }
+
+    .card-desc {
+      font-size: 0.92rem;
+      color: var(--ash);
+      line-height: 1.45;
+      margin-top: 4px;
+      white-space: normal;
+    }
+
+    .card-footer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-top: 12px;
+      border-top: 1px solid var(--smoke);
+    }
+
+    .best-score-chip {
+      font-size: 0.82rem;
+      color: var(--ink);
+      background-color: var(--bone);
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--smoke);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-play-cue {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--ink);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Footer (High-Contrast Dark Section) */
+    .site-footer {
+      background-color: var(--ink);
+      color: var(--paper);
+      padding: 36px 20px;
+      border-top: 1px solid var(--graphite);
+    }
+
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      text-align: center;
+    }
+
+    @media (min-width: 640px) {
+      .footer-inner {
+        flex-direction: row;
+        text-align: left;
+      }
+    }
+
+    .footer-brand-line {
+      font-size: 0.92rem;
+      color: var(--smoke);
+      letter-spacing: 0.03em;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    /* C) MODALS & BOTTOM SHEETS (Setup Sheet & Pause Overlay) */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(28, 28, 28, 0.62);
+      z-index: 80;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0;
+      opacity: 0;
+      transition: opacity 250ms var(--ease-out);
+    }
+
+    @media (min-width: 640px) {
+      .modal-backdrop {
+        align-items: center;
+        padding: 20px;
+      }
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+      opacity: 1;
+    }
+
+    .sheet-card {
+      background-color: var(--paper);
+      color: var(--ink);
+      width: 100%;
+      max-width: 500px;
+      border-radius: 24px 24px 0 0;
+      padding: 24px 20px 28px;
+      border: 1px solid var(--smoke);
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.22);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      animation: sheetSlideUp 280ms var(--ease-out);
+      max-height: 92dvh;
+      overflow-y: auto;
+    }
+
+    @media (min-width: 640px) {
+      .sheet-card {
+        border-radius: 20px;
+        padding: 28px;
+      }
+    }
+
+    @keyframes sheetSlideUp {
+      from {
+        transform: translateY(32px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .sheet-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: lowercase;
+    }
+
+    .how-to-list {
+      list-style: none;
+      background-color: var(--bone);
+      border: 1px solid var(--smoke);
+      border-radius: 16px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: var(--ink);
+    }
+
+    .how-to-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.4;
+    }
+
+    .how-to-bullet {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--ink);
+      margin-top: 7px;
+      flex-shrink: 0;
+    }
+
+    .segmented-selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      background-color: var(--bone);
+      padding: 6px;
+      border-radius: 16px;
+      border: 1px solid var(--smoke);
+    }
+
+    .seg-btn {
+      border-radius: 12px;
+      min-height: 58px;
+      padding: 8px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      background: transparent;
+      color: var(--ink);
+      border: 1.5px solid transparent;
+      font-size: 0.88rem;
+    }
+
+    .seg-btn.active {
+      background-color: var(--ink);
+      color: var(--paper);
+      box-shadow: 0 4px 12px rgba(28, 28, 28, 0.16);
+    }
+
+    .seg-sub {
+      font-size: 0.72rem;
+      opacity: 0.75;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* D) SHARED GAME SCREEN & HUD */
+    #screen-game {
+      height: 100dvh;
+      width: 100%;
+      background-color: var(--bone);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+    #screen-game.active {
+      display: flex;
+    }
+
+    .game-hud {
+      background-color: var(--paper);
+      border-bottom: 1px solid var(--smoke);
+      padding: 6px 12px 8px;
+      flex-shrink: 0;
+      z-index: 20;
+    }
+
+    .hud-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .hud-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .hud-nav-btn {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 0 12px;
+      font-size: 0.84rem;
+      border-radius: 999px;
+      background-color: var(--bone);
+      color: var(--ink);
+      border: 1px solid var(--smoke);
+    }
+
+    .hud-game-title {
+      font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: lowercase;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .hud-metrics-bar {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr 1fr;
+      align-items: center;
+      gap: 8px;
+      background-color: var(--bone);
+      padding: 6px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--smoke);
+    }
+
+    .hud-metric {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .hud-metric.center {
+      align-items: center;
+    }
+    .hud-metric.right {
+      align-items: flex-end;
+    }
+
+    .hud-label {
+      font-size: 0.68rem;
+      color: var(--ash);
+      letter-spacing: 0.06em;
+      text-transform: lowercase;
+      line-height: 1.1;
+    }
+
+    .hud-value {
+      font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.2;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .combo-chip {
+      font-size: 0.72rem;
+      font-weight: 700;
+      background-color: var(--signal);
+      color: var(--paper);
+      padding: 1px 7px;
+      border-radius: 999px;
+      display: none;
+    }
+    .combo-chip.active {
+      display: inline-block;
+      animation: comboPulse 320ms var(--ease-out);
+    }
+
+    @keyframes comboPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.22); }
+      100% { transform: scale(1); }
+    }
+
+    .timer-bar-track {
+      width: 100%;
+      height: 5px;
+      background-color: var(--smoke);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 3px;
+    }
+
+    .timer-bar-fill {
+      height: 100%;
+      width: 100%;
+      background-color: var(--ink);
+      border-radius: 999px;
+      transition: width 150ms linear, background-color 200ms ease;
+    }
+    .timer-bar-fill.urgent {
+      background-color: var(--signal);
+    }
+    .hud-value.urgent {
+      color: var(--signal);
+    }
+
+    /* Game Stage Container */
+    .game-stage-wrap {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .game-view {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      flex-direction: column;
+      padding: 8px 12px 10px;
+      overflow: hidden;
+    }
+    .game-view.active {
+      display: flex;
+    }
+
+    /* Countdown Overlay (3-2-1-GO) */
+    .countdown-overlay {
+      position: absolute;
+      inset: 0;
+      background-color: rgba(28, 28, 28, 0.78);
+      color: var(--paper);
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .countdown-overlay.active {
+      display: flex;
+    }
+    .countdown-num {
+      font-size: clamp(3.5rem, 14vw, 6rem);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      font-variant-numeric: tabular-nums;
+      animation: countPop 320ms var(--ease-out);
+    }
+    @keyframes countPop {
+      from { transform: scale(0.6); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* Toast Feedback Banner inside Game Stage */
+    .game-feedback-toast {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-12px);
+      background-color: var(--ink);
+      color: var(--paper);
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      z-index: 40;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+      white-space: nowrap;
+    }
+    .game-feedback-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .game-feedback-toast.good {
+      background-color: var(--good);
+      color: var(--paper);
+    }
+    .game-feedback-toast.bad {
+      background-color: var(--bad);
+      color: var(--paper);
+    }
+
+    @keyframes shakeAnim {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-7px); }
+      40% { transform: translateX(7px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(5px); }
+    }
+    .shake {
+      animation: shakeAnim 320ms ease;
+    }
+
+    /* ==========================================
+       GAME 1: STYLE BRIEF
+       ========================================== */
+    .sb-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .sb-customer-card {
+      background-color: var(--paper);
+      border: 1px solid var(--smoke);
+      border-radius: 16px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .sb-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background-color: var(--bone);
+      border: 1px solid var(--smoke);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .sb-brief-bubble {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .sb-occasion-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .sb-occasion-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--ink);
+      text-transform: lowercase;
+    }
+
+    .sb-rule-tag {
+      font-size: 0.7rem;
+      color: var(--signal);
+      font-weight: 600;
+    }
+
+    .sb-speech {
+      font-size: 0.8rem;
+      color: var(--graphite);
+      line-height: 1.3;
+      margin-top: 2px;
+    }
+
+    .sb-workspace {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 8px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    @media (min-width: 720px) {
+      .sb-workspace {
+        grid-template-columns: 1.1fr 1.4fr;
+        gap: 14px;
+      }
+    }
+
+    .sb-mannequin-zone {
+      background-color: var(--paper);
+      border: 1px solid var(--smoke);
+      border-radius: 16px;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      min-height: 0;
+      position: relative;
+    }
+
+    .sb-mannequin-figure {
+      flex: 1;
+      height: 100%;
+      max-height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sb-mannequin-figure svg {
+      height: 100%;
+      width: auto;
+      max-width: 100%;
+    }
+
+    .sb-slot-rail {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 54%;
+      max-width: 150px;
+    }
+
+    .sb-slot {
+      min-height: 44px;
+      background-color: var(--bone);
+      border: 1.5px dashed var(--ash);
+      border-radius: 10px;
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-size: 0.74rem;
+      color: var(--ash);
+      transition: border-color 150ms ease, background-color 150ms ease;
+      text-align: left;
+    }
+    .sb-slot.filled {
+      border-style: solid;
+      border-color: var(--ink);
+      background-color: var(--paper);
+      color: var(--ink);
+    }
+    .sb-slot.drag-over {
+      border-color: var(--signal);
+      background-color: rgba(255, 77, 46, 0.08);
+    }
+    .sb-slot svg {
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+    .sb-slot-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+      line-height: 1.15;
+    }
+
+    .sb-tray-zone {
+      background-color: var(--paper);
+      border: 1px solid var(--smoke);
+      border-radius: 16px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-height: 0;
+      overflow-y: auto;
+    }
+
+    .sb-tray-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+      overflow-y: auto;
+      padding: 2px;
+    }
+
+    @media (min-width: 540px) {
+      .sb-tray-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .sb-item-card {
+      background-color: var(--bone);
+      border: 1.5px solid var(--smoke);
+      border-radius: 12px;
+      padding: 6px;
+      min-height: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      cursor: grab;
+      touch-action: none;
+      transition: transform 150ms ease, border-color 150ms ease, background-color 150ms ease;
+    }
+    .sb-item-card:hover {
+      border-color: var(--ink);
+    }
+    .sb-item-card.selected {
+      background-color: var(--ink);
+      color: var(--paper);
+      border-color: var(--ink);
+    }
+    .sb-item-card.hinted {
+      border-color: var(--signal);
+      box-shadow: 0 0 0 2px rgba(255, 77, 46, 0.28);
+    }
+    .sb-item-card svg {
+      width: 32px;
+      height: 32px;
+      pointer-events: none;
+    }
+    .sb-item-name {
+      font-size: 0.7rem;
+      line-height: 1.1;
+      text-align: center;
+      pointer-events: none;
+    }
+    .sb-item-tone {
+      font-size: 0.62rem;
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .sb-actions-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .sb-actions-bar button {
+      min-height: 46px;
+      font-size: 0.86rem;
+    }
+
+    .drag-ghost {
+      position: fixed;
+      width: 68px;
+      height: 68px;
+      background-color: var(--paper);
+      border: 2px solid var(--ink);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 999;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.2);
+      transform: translate(-50%, -50%);
+    }
+
+    /* ==========================================
+       GAME 2: TAG MATCH (Memory Card Game)
+       ========================================== */
+    .tm-layout {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .tm-grid {
+      width: 100%;
+      max-width: 620px;
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      gap: 8px;
+      align-content: center;
+      justify-content: center;
+      perspective: 1000px;
+    }
+
+    .tm-grid.grid-easy {
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(3, minmax(64px, 1fr));
+      max-height: 480px;
+    }
+    .tm-grid.grid-medium {
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, minmax(58px, 1fr));
+      max-height: 520px;
+    }
+    .tm-grid.grid-hard {
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(4, minmax(54px, 1fr));
+      max-height: 520px;
+    }
+
+    @media (max-width: 420px) {
+      .tm-grid.grid-hard {
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(5, minmax(48px, 1fr));
+      }
+    }
+
+    .tm-card {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 52px;
+      border-radius: 14px;
+      background: transparent;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transform-style: preserve-3d;
+      transition: transform 320ms var(--ease-out);
+    }
+
+    .tm-card.flipped,
+    .tm-card.matched {
+      transform: rotateY(180deg);
+    }
+
+    .tm-card.reshuffling {
+      animation: reshuffleWobble 420ms ease;
+    }
+
+    @keyframes reshuffleWobble {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      30% { transform: scale(0.88) rotate(-4deg); }
+      70% { transform: scale(0.92) rotate(4deg); }
+    }
+
+    .tm-face {
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      display: flex;
+       flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .tm-back {
+      background-color: var(--ink);
+      border: 1.5px solid var(--graphite);
+      background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+      background-size: 10px 10px;
+      padding: 18%;
+      transform: rotateY(0deg);
+    }
+
+    .tm-back img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      pointer-events: none;
+    }
+
+    .tm-front {
+      background-color: var(--paper);
+      border: 1.5px solid var(--ink);
+      transform: rotateY(180deg);
+      padding: 6px;
+      gap: 3px;
+    }
+
+    .tm-front .garment-svg {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tm-front .garment-svg svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .tm-hangtag {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 12px;
+      height: 16px;
+      opacity: 0.65;
+    }
+
+    .tm-sold-stamp {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(1.6) rotate(-14deg);
+      transition: opacity 200ms ease, transform 220ms var(--ease-out);
+    }
+
+    .tm-card.matched .tm-sold-stamp {
+      opacity: 1;
+      transform: scale(1) rotate(-14deg);
+    }
+
+    .tm-sold-stamp span {
+      background-color: rgba(255, 77, 46, 0.92);
+      color: var(--paper);
+      border: 2px solid var(--paper);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    /* ==========================================
+       GAME 3: DHAKA DASH (Canvas 3-Lane Runner)
+       ========================================== */
+    .dd-layout {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .dd-canvas-wrap {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      max-width: 480px;
+      background-color: var(--ink);
+      border-radius: 18px;
+      border: 1.5px solid var(--ink);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #dd-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .dd-controls-row {
+      width: 100%;
+      max-width: 480px;
+      display: grid;
+      grid-template-columns: 1fr 1.2fr 1fr;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .dd-ctrl-btn {
+      min-height: 48px;
+      border-radius: 999px;
+      background-color: var(--paper);
+      color: var(--ink);
+      border: 2px solid var(--ink);
+      font-size: 0.86rem;
+      font-weight: 600;
+      padding: 0 12px;
+    }
+    .dd-ctrl-btn.jump-btn {
+      background-color: var(--ink);
+      color: var(--paper);
+    }
+
+    /* ==========================================
+       GAME 4: RACK SORTER (Reflex Conveyor Belt)
+       ========================================== */
+    .rs-layout {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .rs-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background-color: var(--paper);
+      border: 1px solid var(--smoke);
+      border-radius: 14px;
+      padding: 8px 12px;
+      flex-shrink: 0;
+    }
+
+    .rs-queue-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .rs-queue-label {
+      font-size: 0.76rem;
+      color: var(--ash);
+      text-transform: lowercase;
+    }
+
+    .rs-queue-items {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .rs-queue-chip {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background-color: var(--bone);
+      border: 1px solid var(--smoke);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .rs-queue-chip svg {
+      width: 22px;
+      height: 22px;
+    }
+    .rs-queue-chip.defect::after {
+      content: "!";
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background-color: var(--signal);
+      color: var(--paper);
+      font-size: 0.62rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .rs-belt-stage {
+      flex: 1;
+      min-height: 120px;
+      max-height: 220px;
+      background-color: var(--paper);
+      border: 1.5px solid var(--ink);
+      border-radius: 18px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .rs-belt-surface {
+      position: relative;
+      width: 100%;
+      height: 96px;
+      background-color: var(--ink);
+      border-top: 3px solid var(--graphite);
+      border-bottom: 3px solid var(--graphite);
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .rs-belt-Rollers {
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        transparent 36px,
+        rgba(255, 255, 255, 0.08) 36px,
+        rgba(255, 255, 255, 0.08) 40px
+      );
+      pointer-events: none;
+    }
+
+    .rs-danger-zone {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 38px;
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(255, 77, 46, 0.22),
+        rgba(255, 77, 46, 0.22) 8px,
+        transparent 8px,
+        transparent 16px
+      );
+      border-left: 2px dashed var(--signal);
+      pointer-events: none;
+    }
+
+    .rs-belt-item {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 74px;
+      height: 76px;
+      background-color: var(--paper);
+      border: 2px solid var(--smoke);
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      padding: 4px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      cursor: grab;
+      user-select: none;
+      transition: border-color 120ms ease, box-shadow 120ms ease;
+    }
+
+    .rs-belt-item.front-target {
+      border-color: var(--signal);
+      box-shadow: 0 0 0 3px rgba(255, 77, 46, 0.35), 0 8px 18px rgba(0, 0, 0, 0.35);
+      z-index: 5;
+    }
+
+    .rs-belt-item svg {
+      width: 36px;
+      height: 36px;
+      pointer-events: none;
+    }
+
+    .rs-belt-item-label {
+      font-size: 0.64rem;
+      font-weight: 600;
+      color: var(--ink);
+      text-align: center;
+      line-height: 1;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .rs-defect-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background-color: var(--bad);
+      color: var(--paper);
+      font-size: 0.58rem;
+      font-weight: 700;
+      padding: 2px 5px;
+      border-radius: 6px;
+      letter-spacing: 0.04em;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      pointer-events: none;
+    }
+
+    .rs-racks-grid {
+      display: grid;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .rs-racks-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .rs-racks-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .rs-racks-grid.cols-5 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    @media (min-width: 560px) {
+      .rs-racks-grid.cols-5 {
+        grid-template-columns: repeat(5, 1fr);
+      }
+    }
+
+    .rs-rack-btn {
+      min-height: 66px;
+      border-radius: 16px;
+      background-color: var(--paper);
+      color: var(--ink);
+      border: 2px solid var(--ink);
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      position: relative;
+    }
+    .rs-rack-btn:hover {
+      background-color: var(--ink);
+      color: var(--paper);
+    }
+    .rs-rack-btn.return-bin {
+      border-color: var(--bad);
+      color: var(--bad);
+    }
+    .rs-rack-btn.return-bin:hover {
+      background-color: var(--bad);
+      color: var(--paper);
+    }
+    .rs-rack-key {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 6px;
+      background-color: var(--bone);
+      color: var(--ink);
+      border: 1px solid var(--smoke);
+    }
+    .rs-rack-name {
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-transform: lowercase;
+      white-space: nowrap;
+    }
+
+    /* ==========================================
+       F) RESULT SCREEN
+       ========================================== */
+    #screen-result {
+      min-height: 100dvh;
+      width: 100%;
+      background-color: var(--ink);
+      color: var(--paper);
+      align-items: center;
+      justify-content: center;
+      padding: 24px 20px;
+      position: relative;
+      overflow-y: auto;
+    }
+
+    .result-card {
+      background-color: var(--paper);
+      color: var(--ink);
+      width: 100%;
+      max-width: 480px;
+      border-radius: 24px;
+      padding: 28px 24px;
+      border: 1px solid var(--smoke);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    }
+
+    .result-headline {
+      font-size: clamp(1.75rem, 5vw, 2.25rem);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: lowercase;
+    }
+
+    .result-stars-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 4px 0;
+    }
+
+    .result-star {
+      width: 40px;
+      height: 40px;
+      color: var(--smoke);
+      transition: transform 300ms var(--ease-out), color 300ms ease;
+    }
+    .result-star.earned {
+      color: var(--ink);
+      transform: scale(1.1);
+    }
+
+    .result-score-box {
+      background-color: var(--bone);
+      border: 1px solid var(--smoke);
+      border-radius: 16px;
+      padding: 16px 20px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .result-final-score {
+      font-size: clamp(2.2rem, 7vw, 3rem);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.05;
+    }
+
+    .result-best-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.86rem;
+      color: var(--ash);
+      margin-top: 4px;
+    }
+
+    .new-best-badge {
+      background-color: var(--signal);
+      color: var(--paper);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      display: none;
+    }
+    .new-best-badge.show {
+      display: inline-block;
+    }
+
+    .result-actions-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .result-actions-grid .full-span {
+      grid-column: 1 / -1;
+    }
+
+    /* Reduced Motion Support */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body data-state="title">
+
+  <!-- ==========================================
+       A) SPLASH / WELCOME SCREEN
+       ========================================== -->
+  <section id="screen-splash" class="screen active" aria-label="Splash Screen">
+    <div class="watermark-bg" aria-hidden="true"><span>rman</span></div>
+    <div class="splash-inner">
+      <div class="logo-tile-wrap">
+        <img data-logo="true" src="data:," alt="rman official logo" class="logo-tile" />
+      </div>
+      <p class="splash-tagline" data-i18n="splashTagline">men's fashion · dhaka</p>
+      <button type="button" id="btn-splash-play" class="btn btn-signal splash-cta" data-start="true">
+        <span data-i18n="playBtn">play</span>
+      </button>
+      <p class="splash-key-hint" data-i18n="splashHint">press enter or tap play</p>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       B) HERO + DASHBOARD (HOME) SCREEN
+       ========================================== -->
+  <section id="screen-home" class="screen" aria-label="Home Dashboard">
+    <header class="site-header">
+      <div class="header-inner">
+        <button type="button" id="btn-header-logo" class="brand-lockup" aria-label="rman home">
+          <span class="logo-avatar-wrap">
+            <img data-logo="true" src="data:," alt="rman" class="logo-circle" />
+          </span>
+          <span class="live-wordmark">rman</span>
+        </button>
+
+        <div class="header-controls">
+          <div class="stars-pill tabular-nums" aria-label="Total stars collected">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/>
+            </svg>
+            <span id="home-total-stars" class="score-num">0</span>
+            <span>/ 36</span>
+          </div>
+
+          <button type="button" id="btn-home-sound" class="icon-btn" aria-label="Toggle sound">
+            <span id="icon-home-sound" aria-hidden="true"></span>
+          </button>
+
+          <button type="button" id="btn-lang-toggle" class="icon-btn" aria-label="Switch language EN or Bangla">
+            <span id="label-lang-toggle">EN | বাং</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="hero-section">
+      <div class="watermark-bg" aria-hidden="true"><span>rman</span></div>
+      <div class="hero-inner">
+        <p class="hero-kicker" data-i18n="heroKicker">dhaka lookbook arcade</p>
+        <h1 class="hero-headline" data-i18n="heroHeadline">play the rman way</h1>
+        <p class="hero-subline" data-i18n="heroSubline">four mini-games. pick your pace.</p>
+      </div>
+    </div>
+
+    <main class="dashboard-section">
+      <div class="watermark-bg" aria-hidden="true"><span>rman</span></div>
+      <div class="dashboard-inner">
+        <div class="games-grid" id="games-grid">
+          <!-- Populated dynamically by UI.renderHomeCards() -->
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <p class="footer-brand-line" data-i18n="footerLine">rman · Men's fashion · Dhaka, Bangladesh</p>
+        <div class="footer-links">
+          <a href="https://www.facebook.com/share/1JrY4Rjnab/" target="_blank" rel="noopener" class="btn btn-ghost-dark" id="link-fb-main">
+            <span data-i18n="visitFb">Visit rman on Facebook</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M7 17L17 7M7 7h10v10"/>
+            </svg>
+          </a>
+          <a href="https://www.facebook.com/share/1cSmHUCd2A/" target="_blank" rel="noopener" class="btn btn-ghost-dark" id="link-fb-alt" aria-label="rman Facebook Share">
+            <span>fb.com/rman</span>
+          </a>
+        </div>
+      </div>
+    </footer>
+  </section>
+
+  <!-- ==========================================
+       C) GAME SETUP SHEET (MODAL)
+       ========================================== -->
+  <div id="modal-setup" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="setup-game-title">
+    <div class="sheet-card">
+      <div class="sheet-header">
+        <h2 id="setup-game-title" class="sheet-title">style brief</h2>
+        <button type="button" id="btn-setup-close" class="icon-btn" aria-label="Close setup">✕</button>
+      </div>
+
+      <ul id="setup-howto-list" class="how-to-list">
+        <!-- 3 bullet lines populated dynamically -->
+      </ul>
+
+      <div>
+        <div class="segmented-selector" role="radiogroup" aria-label="Select difficulty">
+          <button type="button" class="seg-btn active" data-diff="easy" id="seg-diff-easy">
+            <span data-i18n="diffEasy">easy</span>
+            <span class="seg-sub" id="seg-best-easy">★ 0 · 0</span>
+          </button>
+          <button type="button" class="seg-btn" data-diff="medium" id="seg-diff-medium">
+            <span data-i18n="diffMedium">medium</span>
+            <span class="seg-sub" id="seg-best-medium">★ 0 · 0</span>
+          </button>
+          <button type="button" class="seg-btn" data-diff="hard" id="seg-diff-hard">
+            <span data-i18n="diffHard">hard</span>
+            <span class="seg-sub" id="seg-best-hard">★ 0 · 0</span>
+          </button>
+        </div>
+      </div>
+
+      <button type="button" id="btn-setup-start" class="btn btn-signal" data-start="true">
+        <span data-i18n="startBtn">start</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       D) GAME SCREEN (SHARED HUD + 4 GAME VIEWS)
+       ========================================== -->
+  <section id="screen-game" aria-label="Game Screen">
+    <header class="game-hud">
+      <div class="hud-inner">
+        <div class="hud-top-bar">
+          <button type="button" id="btn-hud-home" class="hud-nav-btn" aria-label="Return Home">
+            <span data-i18n="homeBtn">home</span>
+          </button>
+
+          <h2 id="hud-title" class="hud-game-title">style brief</h2>
+
+          <div style="display:flex; gap:6px; align-items:center;">
+            <button type="button" id="btn-hud-sound" class="hud-nav-btn" aria-label="Toggle sound">
+              <span id="icon-hud-sound" aria-hidden="true"></span>
+            </button>
+            <button type="button" id="btn-hud-pause" class="hud-nav-btn" aria-label="Pause game">
+              <span data-i18n="pauseBtn">pause</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="hud-metrics-bar">
+          <div class="hud-metric">
+            <span class="hud-label" data-i18n="hudScore">score</span>
+            <div class="hud-value">
+              <span id="hud-score" class="score-num">0</span>
+              <span id="hud-combo" class="combo-chip">×2</span>
+            </div>
+          </div>
+
+          <div class="hud-metric center">
+            <span class="hud-label" data-i18n="hudTime">timer</span>
+            <span id="hud-timer" class="hud-value score-num">30s</span>
+            <div class="timer-bar-track">
+              <div id="hud-timer-bar" class="timer-bar-fill"></div>
+            </div>
+          </div>
+
+          <div class="hud-metric right">
+            <span id="hud-status-label" class="hud-label" data-i18n="hudProgress">progress</span>
+            <span id="hud-status-value" class="hud-value score-num">1/5</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="game-stage-wrap" id="game-stage-wrap">
+      <div id="game-toast" class="game-feedback-toast" role="status" aria-live="polite"></div>
+
+      <!-- 3-2-1-GO Countdown Overlay -->
+      <div id="countdown-overlay" class="countdown-overlay" aria-live="assertive">
+        <div id="countdown-num" class="countdown-num">3</div>
+      </div>
+
+      <!-- GAME 1: STYLE BRIEF VIEW -->
+      <div id="view-style-brief" class="game-view" aria-label="Style Brief Game Area">
+        <div class="sb-layout">
+          <div class="sb-customer-card">
+            <div class="sb-avatar" id="sb-avatar" aria-hidden="true"></div>
+            <div class="sb-brief-bubble">
+              <div class="sb-occasion-row">
+                <span id="sb-occasion" class="sb-occasion-title">office meeting</span>
+                <span id="sb-extra-rule" class="sb-rule-tag"></span>
+              </div>
+              <p id="sb-speech" class="sb-speech">"Formal look needed."</p>
+            </div>
+          </div>
+
+          <div class="sb-workspace">
+            <div class="sb-mannequin-zone">
+              <div class="sb-mannequin-figure" id="sb-mannequin-svg"></div>
+              <div class="sb-slot-rail" id="sb-slot-rail" role="list" aria-label="Outfit slots"></div>
+            </div>
+
+            <div class="sb-tray-zone">
+              <div class="sb-tray-grid" id="sb-tray-grid" role="list" aria-label="Garment choices"></div>
+            </div>
+          </div>
+
+          <div class="sb-actions-bar">
+            <button type="button" id="btn-sb-hint" class="btn btn-secondary">
+              <span data-i18n="hintBtn">hint</span>
+              <span id="sb-hint-count" class="tabular-nums">(3)</span>
+            </button>
+            <button type="button" id="btn-sb-submit" class="btn btn-signal" style="flex:1; max-width:260px;">
+              <span data-i18n="submitLookBtn">submit look</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAME 2: TAG MATCH VIEW -->
+      <div id="view-tag-match" class="game-view" aria-label="Tag Match Game Area">
+        <div class="tm-layout">
+          <div id="tm-grid" class="tm-grid grid-easy" role="grid" aria-label="Memory cards"></div>
+        </div>
+      </div>
+
+      <!-- GAME 3: DHAKA DASH VIEW -->
+      <div id="view-dhaka-dash" class="game-view" aria-label="Dhaka Dash Game Area">
+        <div class="dd-layout">
+          <div class="dd-canvas-wrap" id="dd-canvas-wrap">
+            <canvas id="dd-canvas" width="420" height="580" data-testid="dhaka-dash-canvas"></canvas>
+          </div>
+          <div class="dd-controls-row">
+            <button type="button" id="btn-dd-left" class="dd-ctrl-btn" aria-label="Move Left Lane">← <span data-i18n="leftBtn">left</span></button>
+            <button type="button" id="btn-dd-jump" class="dd-ctrl-btn jump-btn" aria-label="Jump Obstacle">↑ <span data-i18n="jumpBtn">jump</span></button>
+            <button type="button" id="btn-dd-right" class="dd-ctrl-btn" aria-label="Move Right Lane"><span data-i18n="rightBtn">right</span> →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAME 4: RACK SORTER VIEW -->
+      <div id="view-rack-sorter" class="game-view" aria-label="Rack Sorter Game Area">
+        <div class="rs-layout">
+          <div class="rs-top-row">
+            <div class="rs-queue-wrap">
+              <span class="rs-queue-label" data-i18n="upcomingQueue">next in queue:</span>
+              <div id="rs-queue-items" class="rs-queue-items"></div>
+            </div>
+            <div id="rs-target-hint" style="font-size:0.78rem; font-weight:600; color:var(--ink);"></div>
+          </div>
+
+          <div class="rs-belt-stage" id="rs-belt-stage">
+            <div class="rs-belt-surface" id="rs-belt-surface">
+              <div class="rs-belt-Rollers"></div>
+              <div class="rs-danger-zone"></div>
+              <div id="rs-belt-items"></div>
+            </div>
+          </div>
+
+          <div id="rs-racks-grid" class="rs-racks-grid cols-2" role="group" aria-label="Sorting Racks"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       E) PAUSE OVERLAY (MODAL)
+       ========================================== -->
+  <div id="modal-pause" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="pause-modal-title">
+    <div class="sheet-card">
+      <div class="sheet-header">
+        <h2 id="pause-modal-title" class="sheet-title" data-i18n="pausedTitle">game paused</h2>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <button type="button" id="btn-pause-resume" class="btn btn-signal">
+          <span data-i18n="resumeBtn">resume</span>
+        </button>
+        <button type="button" id="btn-pause-restart" class="btn btn-primary">
+          <span data-i18n="restartBtn">restart</span>
+        </button>
+        <button type="button" id="btn-pause-diff" class="btn btn-secondary">
+          <span data-i18n="changeDiffBtn">change difficulty</span>
+        </button>
+        <button type="button" id="btn-pause-home" class="btn btn-secondary">
+          <span data-i18n="homeBtn">home</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       F) RESULT SCREEN
+       ========================================== -->
+  <section id="screen-result" class="screen" aria-label="Result Screen">
+    <div class="watermark-bg" aria-hidden="true"><span>rman</span></div>
+    <div class="result-card">
+      <span class="logo-avatar-wrap">
+        <img data-logo="true" src="data:," alt="rman" class="logo-circle" />
+      </span>
+
+      <h2 id="result-headline" class="result-headline">look complete</h2>
+      <p id="result-subline" style="font-size:0.88rem; color:var(--ash); margin-top:-8px;"></p>
+
+      <div class="result-stars-row" id="result-stars-row" aria-label="Stars earned">
+        <svg class="result-star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg>
+        <svg class="result-star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg>
+        <svg class="result-star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg>
+      </div>
+
+      <div class="result-score-box">
+        <span class="hud-label" data-i18n="finalScoreLabel">final score</span>
+        <div id="result-score-num" class="result-final-score">0</div>
+        <div class="result-best-row">
+          <span data-i18n="personalBestLabel">personal best:</span>
+          <span id="result-best-num" class="score-num">0</span>
+          <span id="result-new-best" class="new-best-badge" data-i18n="newBestBadge">new best!</span>
+        </div>
+      </div>
+
+      <div class="result-actions-grid">
+        <button type="button" id="btn-result-again" class="btn btn-signal full-span" data-start="true">
+          <span data-i18n="playAgainBtn">play again</span>
+        </button>
+        <button type="button" id="btn-result-next" class="btn btn-primary">
+          <span data-i18n="nextGameBtn">next game</span>
+        </button>
+        <button type="button" id="btn-result-diff" class="btn btn-secondary">
+          <span data-i18n="changeDiffBtn">change difficulty</span>
+        </button>
+        <button type="button" id="btn-result-home" class="btn btn-secondary full-span">
+          <span data-i18n="homeBtn">home</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* ==========================================
+         1. CONFIG & CATALOGS
+         ========================================== */
+      const LOGO_URI = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCALQAtADASIAAhEBAxEB/8QAHQABAAEEAwEAAAAAAAAAAAAAAAgFBgcJAQIEA//EAE4QAQABAwIBBQwFCgMGBQUAAAABAgMEBQYRBwgSITETN0FRYXF0dYGRsbMiMjZSshQzNUJygoOFocEVI5IXJzRTosNWYnOT0RZDVZTS/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAH/xAAWEQEBAQAAAAAAAAAAAAAAAAAAARH/2gAMAwEAAhEDEQA/AI9gJaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMobF5Et2bpt0ZN3Hp0jTquuL+bE01VR46bf1p9vCPKDF5HXVFMds9keGUwtrc3PaWmdG5rV3M1rIjt7tX3K1x/Ypnj75llHRNq6DoVqm3o+jafhRTHDjZx6aZnzzw4z7QQF0/au4dSp6Wn6DquTRPZVaxLlUe/hwVe3yY75rpiadp6x7bHD4yn6cAQCr5MN80U9KraerxHks8fhK39V0XU9Hq6OrabnYNXZwyceq3x83GOtsd4Pjk4tjLsV2cqzav2a44VW7lEVU1R5YnqBrYGdecpyZabtKcLXtvWfybT8y9Ni/jUzxotXJiaqZojwRMRV1dkTEcO1goAAAc0UzXcot0RNVdc8KaaY4zVPiiPDLL2x+QLdW4qKMjVO56Jg1x25NM1X6o8luOz96Y8wMQPrjWLuVdi1i27l+7PZRaomufdEJmbU5Adl6JTTXm417WMqO2vMr+hx8lunhTw8k8WT9N0rT9Msxa03AxMO1THCKMezTbiPZEQCA+FyfbxzaIrxtr6zXTPZP5JXT+KIen/Zfvn/AMKat/7Uf/KfhwBr1z9i7s0+ia83bWsWaI7apxK5iPdErerpqormmuJpqjqmJjhMexsrUjXttaLuCxVZ1vSsLOoq/wCfZpqmPNM9cewGukSs33zcdKzLdy/tDLr02/M9KMW/VNyxVPiir61P/V5ka90bc1ba2rXNN17Cu4mXR18Ko401x96iqOqqPLAKOPVp2Dl6nnWsPTsa9lZV2eFFmzRNdVU+SIZ92DzcM3Lizl7zzfyK3PXODizFdyY/81fCYp9nHzgjwrOl7W3Bq3D/AA3Q9Uy4nsqs4ldUe/hwTo2tydbT2vRH+DaHh2rsRw7vco7rdn9+rjK7AQDjkw3zV9Xaese2zEfGXS9yab3sU9K9tXWKafHGPNXw4p/gNbuo6Zn6bX0NRwcvEr8WRZqt/iiHkbKMnGsZVqbeTZt3rc9tFymKon2SxnvHkO2ZuOm5ctYEaTm1ceF/AiLccfLR9WfcCEYyNyn8kmv7DmrJvUxn6PNXCnNsUzwp49kXKe2iffHlY64A4AAAABcmytk6/vTNqx9vYNWRFuYi7fqnoWbXH71c9XsjjPkBbYlTs3m16RiUUXd16lkahf7asfFmbNmJ8XS+tV74Zf2/sbbG36KadI0PT8aaey5FmKrntrnjVPvBAvTtu65qfD/DtG1LK49k2cW5XHvingrdvky3zcp6VG09XmPLY6Px4J/RERHCIiIAQD/2X76j621NWj+DE/3UzUdn7k0zj/iGgatjxT21V4dfCPbw4Nh5wBrSnjEzExwmO2J7RsO3Ds3bu4rFVrWtGwcyKv17lmOnHmqjrj2Swpvzm2YN+mvK2XnV4l7hM/keXVNdufJTX9an28Y8wIuCqbk2/qu2tUuafrmFdw8uj9WuOqqPvUz2VR5YUsAAAAAAAXvsfku3ZvPoXdJ02q3hVdf5ZlzNqzw8kzHGr92JZ22lzatGxIpubo1PJ1G52zYxv8i15uPGap98Ail5I658ER2yq2m7a13VOj/hui6nlRV2VWsS5VHviOCem39j7Y0CiI0jQtOxqo6u6U2Imv21zxqn3rjiIiOERwgEAbfJlviunpRtPV+E+Oxw+Mu3+zDfP/hTV/ZZif7p+TDiAa7dT2nuPS+M6loGrY1MdtVzDuRHv4cFFmOEzE9Ux4JbLVvbi2Xtzclmq3rWiYGXx/XrsxFceaqOFUe8GvMSh37zbcS9Rcytl59WNeiOMYWZV0rc+Sm520+3j54Ry3Jt/Vdtanc07XMK9h5lHbRcjqqj71NXZVHlgFLAAAAAAAAAAAAAAAAAAAAAAAAfbCxcjOzsfDw7Vd7JyLlNq1bojjVXVM8IiI88vizPzU9Gtajyl3cy/T0o03CqvW+PZ06piiJ9kTUDMfI5yLaZtDFx9R121Z1DcMxFc1VfTtYs/dtx2TMeGuevxcGY3DmFAY039y0bU2fcv4tzJnUdUtTNNWJh/TmirxV1/VpnycePkYJ3TzjN06lXXRoOPh6Rjz2VcO73uHnq+jH+kEwXmyM7Fxv+JyLNn/1LlNPxlr81feu59armrVNwarkRV20Tk1U0/wCmOEf0UCuqa5411VVT46p4paNjP+P6R/8AlMD/APYo/wDl7bN+1fp6dm5Rco+9TPGGtbox4n2xcnJxLndMTJvY9f3rVyqiffEwolJzwdbx7e19G0WKonKycv8AKpp49cUUUVRxmPLNce6UVnp1LUc7VL9N7UszIy7tNEW6a79ya6opjsjjPg65eZAVXa+g5+5tdxNI0i13XMya+jTHZFMeGqqfBTEcZmfIpSSnM60a1cq3Frd6iJv0TbwrVXD6tMx064jz/Q9wMo8lfJNoexcWi/FujO1uqn/NzrtPXTPhi3H6lP8AWfDLJEDiuqmimaqpiIiOMzM8AcjCW/8AnB6BoVy5ibdtf41nU8Ym5RX0ceiY/wDP+t+7HtYC3Xyx713JVcovatXg4tXVGPgR3GmI8U1R9KfbKicGZqOHhRxzMqxjx47tyKPi8FO6dv1VRTRrmlVTPZEZluZ+LXbfuXL9ybmTdrv3Kuuars9OZ9s9b5xTT9yj/TCWjZXYvW8i1TcsV0XLdXXFdFUVRPth9GuPRNc1TQcmnI0bUs3Bux+tj3qqOPsjqln/AJKecJkRlWNM33NFdi5MUU6nRRFM0TPZ3WmOrh46o7PDHhNEnVrcomyNK33oFzTdVtxTciJqx8mmmJuY9f3qf6cY7Jhc9q5Rdt03LdVNdFURVTVTPGJjxw7KLN5OuTrQ9h6dFnSrEXcy5TEX829TE3b0+fwU8eymOqPL2rygW3vfe2h7K038s17MptU1RPcrNH0rt6fFRT4fP2R4QXI6Xr1uxbm5euUW6I7aq6uER7URN+c4jcWr13MfbNq3ouFMzEXeq5kVR45mfo0+yOPlYe1bWNS1nIrv6tqGXm3qp4zXkXqrk/1kGwW5urQLdXRr1zSqZ8VWZbifiqWHnYudb7phZNnIo+9auRXHviWtiLdH3KP9MPRhZORhX4vYd+9j3qeyu1cmiqPbExKWjZOIc8nHL5uHb+TZxty3LmtaXPCKqrn/ABFvy01/rear3wlrt7W9P3Do+LqmkZNGThZNHTt3KfhMeCYnqmPBMKPZlY9rKsXLGRbou2blM0V266YqpqpntiYnthDTl/5L42PqlOqaPRX/APT2bXMUU8Jn8ludvc5n7sxxmnzTHg65oKHvfbmJuza2o6Ln0x3LKtTRFfDrt19tNUeWJiJ9gNdw++fiXtPz8rCyqJoyMa7XZu0T201U1TTMe+HwQAAenS8O5qWqYWBYmIvZV+3Yo49nGuqKY/rLYXtHbuBtXQMTSdKs02sfHoinqjrrq8NdU+GqZ65lrz07LuYGoYubjzwv412i9bnxVU1RVH9YhsB2Pu7Td3bWxtb067TFiuj/ADqa6oibNcfWoq8Ux8OE+EFyHBije3Lvs/bVVyxi5Fes5tHVNvB4VURPim59X3cWD91c4fd2rxVRo1OLolmePXZo7rdmPLVXHD3UwCY8zwUvJ3Do+LV0crVdPsT4e6ZNFPxlr81fcuua1XNWs6xqGd5L+RXVT7uPBSKoirtppnzxxBsYs7l0O/X0LGs6bcr+7RlW5n4qrRXTXTFVExVTPZMTxa0qaKI/Uo9ytbf3Tr23b1N3Q9YzsKqnwWrs9Crz0z9Gfco2KCOfJRzg41DMx9J3xRasX7s9C3qVv6FuavBFynsp4/ejq8cR2pGRPGOILY5Qdk6RvnQrmnavZiKvrWMmmmO6WK/BVTPxjsmOqUF987W1DZu5svRdWoiL1melRcp+retz9WunyTw9k8Y8DYewlzp9o29X2RGvWbfHO0eqKqqojrqsVTEVx7J4VeThPjBD8BAAB2ooqrqimmJqqmeEREcZmfBCVvIzyF4el42NrG8sejK1OqKblrBrjjax/DHTjsrr7PJHlnrYa5u2kW9Y5WtIoyKOnZxIuZkx5aKfo+6qaZ9icYOtq3TboimiIimI4REdUQ7cBj3lC5XNr7Irrxs7Kqy9Tpj/AILEiK7kT4OlPZT7Z4+RRkJxXVFFM1VTERHhmeCHe8OcPuzVrly1odGPomLM8ONERevcP26o4R7KWKtY1/WNZuzc1fVtQzqp7e75Fdce6Z4A2C5O49Fxaujlavp1mrwxcyqKeHvlxY3LoeRX0MfWdMu1/doyrdU/0lrommmrtppnzxxcRTTTPVTR/phLRstorprpiaZiYnsmJ4xLlrx23vDcO271N3Q9ZzcOY4fQouzNufJNE8aZj2JF8kvOAs6vl4+kb0t2sPMuzFu1n2o6NmurwRXH6kz4+zzAkGtnfuytH3vodzTdasRPbNnIo6rlivh1VUT4PN2T4VzCjXryg7Q1DZG5sjR9UjpVUfTs3qY4U3rc/Vrj3TEx4JiYW4mnzk9l0bo2Ffz8a10tV0imrJszT9au3H5yjzTTHHz0whbExMRMdkoOAAAAAAAAAAAAAAAAAAAAAAEgeZ19qtxehWvmSj8kDzOvtVuL0K18yQSsAUa7t+/brcfrPK+dUoaub9+3W4/WeV86pQ0AAAAAABK7md/ZLcHp9PyqUUUruZ59ktwen0/KpBn94Nf/AEJqHo9z8Eve8Gv/AKE1D0e5+CVGt+1+bo/Zj4Ozra/N0fsx8HZAAAABL7mq7sva1sy/oubc7pkaPXTbtVVT11WKomaI/dmJp80QzeiVzQciunfesY8fUu6b0589FyiI/HKWqg16coOoarqO8dWr1/Mu5efZyrtiuuueqmKK5iKaY7KaY4dUQ2Ftf3K1RFHKluymmOERqV748UFpgAAA5Z+5pe672JuPN2zk3q6sXNtVZOPRPXFN2jh0uHi6VPb5aY8bAK+ORDIrxeVna1y321ZkWp81VNVM/wBJBPQBRBvnFaXTpXK9rdNuOFvK7nl0x5a6I6X/AFRUxszTzs6KY5TseqI+lVp1qZn9+4wvwQcAAPRbzMq1hZGHZysi3iZExN6zRcmKLkx2dKnsntntedyDgAAAAABMzmwbuv7k2HVg592q7m6RXGPNyrrmu1McbczPhmIiaf3YQzZ95nuRXTvPX8WPzdzT6Lk+em5ER+OQSweDXtOt6vo2dp1+Imzl2LliuJjj1VUzT/d7xRrUv2q8e/ds3Y4V265oq88TMT8HVW98WPyfeu4LPDh0NRyI8nDulSiIAAMxc1Pvrfy+/wDGhMuENOan31v5ff8AjQmXACBfLh33N1elx8uhPRAvlw77m6vS4+XQosYBAAAABMfmx72v7l2fe0vU73dNR0mqm1FdU/SuWZj6Ez45jhNPshmZDfmpalXicp9WHE/QzcG7RMcerjTNNcfCUyOKjpet0XbdVu5TFVFcTTVE+GJ7Ya7N3aVOh7p1fSpj/gsu7Yp/Ziqej/Tg2LILc4PHoxOWHcdu19Wq5buT56rNFU/1kGOwEAAAAAAAAAAAAAAAAAAAABIHmdfarcXoVr5ko/JA8zr7Vbi9CtfMkErAFGu/ff263J6zyfnVqEru+/t1uT1nk/OrUJLQAAAAAASu5nn2S3B6fT8qlFFK7mefZLcHp9PyqQZ/eDcH6Ez/AEe7+CXveDcH6Ez/AEe7+CVGt+1+bo/Zj4Ozra/N0fsx8HZLQAAABnDmid8bUvVdz5tpL2EQuaJ3xtS9V3Pm2kvYAa/+V3vq7u9ZXfi2ANf/ACu99Xd3rK78VFpAIAAC8uRvvq7U9Y2/7rNXlyN99XanrG3/AHBPsBRD3nbd8vE9W2vx3GFGa+dt3y8T1ba/HcYUQAAAABdezOT3dG8ujVoWlXbuNM8Jyrn+XYj9+e3zRxlmbb3Nju10UXNx7gi3V21WcGz0v+uv/wDkEbhM/S+b3sPD4Tfxc7Nr8d/LqiPdR0YXHickWwsTrs7Y0+Z8d2mbn4pkEDJqpp4dKqI4+OeD7Wce9kVcMezcvf8Ap0TV8GwzB2jt3ApiMPQdJscOzuWHbp4e6FYs2LViOFm3Rbjs4U0xEf0Br1wtmbozuvE25rF2nx04Vzh75p4M8c17Zm49u7w1TO13RsvT8a7p/caK8imKelV3SieHDjx7IlJZxMA5AUa8+UT7fbk9ZZHzKlvLh5RPt9uT1lkfMqW8gAAzFzVe+t/Lr/xoTLlDTmq99b+XX/jQmXIEoGcuXfd3V6XHy6E85QM5cu+7ur0uPl0KLFASAAAADKfNj78mlej5Hy5TaQl5sffk0r0fI+XKbQOEHucf35tw/wAD5FtOGUHucf35tw/wPkW1GNAEAAAAAAAAAAAAAAAAAAAABIHmdfarcXoVr5ko/JA8zr7Vbi9CtfMkErAFGu/ff263J6zyfnVqEru+/t1uT1nk/OrUJAAAAAAASu5nn2S3B6fT8qlFFK7mefZLcHp9PyqQZ/eDcH6Ez/R7v4Je94NwfoTP9Hu/glRrftfm6P2Y+Ds62vzdH7MfB2QAAAAZx5offG1L1Xc+baS8RD5offG1L1Xc+baS8Aa/+V3vq7u9ZXfi2ANf/K731d3esrvxUWkAgAALy5G++rtT1jb/ALrNXlyN99XanrG3/cE+wFEPedt3y8T1ba/HcYUZr523fLxPVtr8dxhRAAB2tW6712i1ZoquXa5imiimJmqqZnhEREdsz4kpeSDkExMKxY1be9qnKzJ4V29Nnrt2er/7n3qvJ9WPKonNU2Hay72Ru7UrMVxj3JsYFNccY6cfXu8PHH1Y89XkSgB1sWrdi1Rbs0U27VFMU00UxwimI7IiPA7yLA5R+VfbexONjPvV5eqdHpU4GNwquRE9k1ceqiPP7IlRf4iRuLnJ7nzLldOiafp2mWP1arkTkXfbPVT/AEWTn8sm/wDNqmbm5cm1T92xbt24/pTx/qgna6Xr1uzR071yi3R96qeENeudvbdOfTNOZuTWL1M+CrMucP6SoeRkX8qellX7t+v712uquf6zINhedvLbWBTM5m4NJs8O2K8y3Ex/V8tv7323uPUL2DoOsYeoZVm33Wu3j19Po08Yjjx7O2Y8LXrFMR2REeaODO/M/n/eBrPqv/u0KJbAA158on2+3J6yyPmVLeXDyifb7cnrLI+ZUt5AABmLmp99b+X3/jQmXCGnNT7638vv/GhMuAJQM5cu+7ur0uPl0J5ygZy5d93dXpcfLoUWKAkAAAAGU+bH35NK9HyPlym0hLzY+/JpXo+R8uU2gEG+cf35tw/wPkW05EG+cf35tw/wPkW1GNgEAAAAAAAAAAAAAAAAAAAABIHmdfarcXoVr5ko/JA8zr7Vbi9CtfMkErAFGu/ff263J6zyfnVqEru+/t1uT1nk/OrUJAAAAAAASu5nn2S3B6fT8qlFFK7mefZLcHp9PyqQZ/eDcH6Ez/R7v4Je94NwfoTP9Hu/glRrftfm6P2Y+Ds62vzdH7MfB2QAAAAZw5onfG1L1Xc+baS9hELmid8bUvVdz5tpL2AGv/ld76u7vWV34tgDX/yu99Xd3rK78VFpAIAAC8uRvvq7U9Y2/wC6zV5cjffV2p6xt/3BPsBRD3nbd8vE9W2vx3GFGa+dt3y8T1ba/HcYUQHFU8KZnxRxcuaeuqmPHMfEGwTkv0ejQOT7QNNt09GbWHbmuOHD6dUdKqf9Uyuh0sUxRZt0xHCKaYiI8TuCxOWvedWxth5epY00fl96qMXEiqOMd1r7KuHhimImr2IJZmRfzcq7k5d6u9kXqpruXK541V1T2zM+FJ7nkXK40ba9uKpi3Vk3qqqfBVMUREfGfei6DgAAABnfmf8AfA1n1X/3aGCGd+Z/3wNZ9V/92gEtgFGvPlE+325PWWR8ypby4eUT7fbk9ZZHzKlvIAAMxc1Xvrfy6/8AGhMuUNOar31v5df+NCZcgSgZy5d93dXpcfLoTzlAzly77u6vS4+XQosUBIAAAAMp82PvyaV6PkfLlNpCXmx9+TSvR8j5cptA4Qe5x/fm3D/A+RbThQe5x/fm3D/A+RbUY0AQAAAAAAAAAAAAAAAAAAAAEgeZ19qtxehWvmSj8kDzOvtVuL0K18yQSsAUa799/brcnrPJ+dWoSu77+3W5PWeT86tQkAAAAAABK7mefZLcHp9PyqUUUruZ59ktwen0/KpBn94NwfoTP9Hu/gl73g3B+hM/0e7+CVGt+1+bo/Zj4Ozra/N0fsx8HZAAAABnHmh98bUvVdz5tpLxEPmh98bUvVdz5tpLwBr/AOV3vq7u9ZXfi2ANf/K731d3esrvxUWkAgAALy5G++rtT1jb/us1eXI331dqesbf9wT7AUQ9523fLxPVtr8dxhRmvnbd8vE9W2vx3GFEAn6s+OI4xHjAGxna+oUartvStQtzxpysW1e4/tUxP91UYQ5q27aNW2PXoN+5xzdIrmmmmZ+lNiqZmifZPSp9keNm9RibnL7Uvbl5O67+Ham7maVd/LKKKY41V0RExXER+zPH91CxssR35Wub/GpZl/V9k12ce/dqmu7p1yehbqqntm3V+rx+7PV5YBFsVvcG09wbeuzb1rRs7DmJ4RVcsz0KvLFccaZjzSofTo/5lHvQcjjp0f8AMo97vZorv3It49FV6uf1bdM1T7o6wdWduaD3wdY9V/8AdoWNtXkj3tuSqmcXRL+Jj1dfd87/ACKPZFX0p9kSkryK8j9vk+yMrUcvUpzdTyrPcK6bVvoWbdPSir6PHrqnjEdc8PMDLQCjXnyifb7cnrLI+ZUt5XN83qMreu4L9qeNFzUMiqPN3SpROCDgAGYuan31v5ff+NCZcIac1Pvrfy+/8aEy4AlAzly77u6vS4+XQnnKBnLl33d1elx8uhRYoCQAAAAZT5sffk0r0fI+XKbSEvNj78mlej5Hy5TaAQb5x/fm3D/A+RbTkQb5x/fm3D/A+RbUY2AQAAAAAAAAAAAAAAAAAAAAEgeZ19qtxehWvmSj8vvkX31TsDedvUsq3Xd0+9aqx8q3bjjX0JmJ6VMeGYmInh4Y4x4QTyFqaNyi7Q1jFpv4O49Lmmr9S5kU264nxTTVMTHuddZ5SNnaPYm7n7k0umI/Vt34u1f6aOM/0UQb359utx+s8n51ahqpuvMsajurWs3EqmvGyc2/ftVTTw40VXKppnh5phTOCDgAAAAABK7mefZLcHp9PyqUUWXObzykYmxdXzsTW+nGk6hFE1XqKel3C5TxiKpiOuaZieE8OvqgE0Xg3B+hM/0e7+CVLwN87Wz8em/h7h0i5aqjjE/lluJ90zxhQd58p2zNM0jMtZO4sCu9csV00W8e53eqZmmYiOFHHx9s9SiCNr83R+zHwdnFEdGmmPFEQ5QAAAAZx5offG1L1Xc+baS8QC5Jt4Tsbe+HrFduu7i9GqxkW6OHSm3V2zHHq4xMRPsTP0PlI2hreLRfwNw6bMVdtF3IptV0z4ppr4TEgu5ADle76m7fWV34pqavyi7P0i13TP3JpVEfdoyKblU+amnjM+5B7lE1LF1nf24tS0+5NzDy865es1zTNMzTM9U8J64UW8AgAALy5HO+ptT1ha/us17dE1K/o+sYOpYnR/KMS/Rft8Y6ulTVEx7OoGyAY+2byvbP3NgWr1OrYun5U08bmLnXYtV0T4Y41cIqjywr+dvnauDZm7l7j0i3THjy7cz7oniojBzto/3l4nq23+O4wmylzi906PuzflnN2/mRmYlrDosVXaaZppmuKq5nhxiOMcKo62LUAAFe2PunUdm7kxdZ0muIvWZ6Ndur6t63P1qKvJP9J4T4E5eT3fOjb60OjUNHvx0ojhkY1c8LmPV92qPhPZLX4qe3de1TbeqW9R0LOvYWZb6ouW57Y8VUT1VR5JjgDY0I47D5yeNct2sXemn12L31ZzMKnpUT5arcz0o9nHzQzVt3fO2dx0UzouuaflVVdlum9EXP9E8Ko9yi466aa6ZpqiJifBMcVJyttaHl1VVZWjaZfqq7Zu4tFcz74VeJ4gKBRs3bNNUVUbe0emqPDGFa4/hVXBwMPBo6GHi4+PTHgs2qaI90Q9QAPHqOq6fplqbupZuLiWo7a8i7TbiPbMwxlubl92Ro0V0YmZe1fIp7LeDb6VPH9ueFPumQZZYq5buVTB2To9/Bwb9u9uLItzTZs0Tx7hx6u6V+KI7YieuZ4eDjLB29ucLufXKa8bQ6LOiYlXVNdqrul+qP256qf3Y4+VhzIu3Mi9Xev3K7l65VNVdyuqaqq6p7ZmZ7ZS0dOPGeM9oQA4ABmLmp9XKt/L7/AMaEy4a+eTXdNzZe9NO12i3N23jzNN61E8JrtVRwqiPLw648sQmptzlN2dr+JRewdwYFFVURxs5F6mzcpnxTTVMTxBeUoGcuXfd3V6XHy6EytW5Qdo6XYqu5u5NIopjwRlUV1e6mZlCblU1bD17lF3Bqml3e7YOVk9Ozc6M09KOhTHHhPXHXEqLUASAAAADKXNkqinll0njPDjYyIj/25Tba8NibjvbS3dpeuWKO6TiXenXb48OnRMTTVTx8HGJn28E2dtcqOzdw4lu9h69g2blcR0rGVdps3aJ8U01TH9OMAvZBvnH9+bcP8D5FtL7Ut/bT021NzN3HpNuI8H5VRVV7IiZmULuWvXdP3Lyna1qujX5yMC/Nrud3oTT0ujaopnqmIntpnwKLJAQAAAAAAAAAAAAAAAAAAAAAAOET20xPnOEeCmI8wAAAAAAAAAAAcI8NMT5wAAAAAAADhE/WpifOAHCmPq0xHmAAAAAAAAdYimn6tNMeaHYAAAAAAAABWdM3TuHS+H+Ha9quLw8FrLuUx7uPBW7PKpvuzw6O6tUnh96umrj74lZYC+K+Vrf1VMxO6tQ6/DHQiY/6VOzt/wC8M6macnc+sV0z2x+V10x7qZhbDmAd8i/cya+nlXLl+v716ua598ukHABwAAAAAAcIn61MT5wA4RH1aYjzAAAAAAAAHCJ+tTE+cAOER9WmI8wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP//Z';
+      document.getElementById('favicon-link').href = LOGO_URI;
+      document.querySelectorAll('img[data-logo]').forEach((el) => { el.src = LOGO_URI; });
+
+      const Config = {
+        gamesOrder: ['styleBrief', 'tagMatch', 'dhakaDash', 'rackSorter'],
+        maxScores: {
+          styleBrief: { easy: 1400, medium: 2200, hard: 3400 },
+          tagMatch: { easy: 1100, medium: 1700, hard: 2300 },
+          dhakaDash: { easy: 850, medium: 1250, hard: 1750 },
+          rackSorter: { easy: 450, medium: 800, hard: 1200 }
+        },
+        styleBrief: {
+          easy: { customers: 5, slots: ['top', 'bottom'], choicesPerSlot: 4, timePerCustomer: 30, hints: 3, lives: null },
+          medium: { customers: 6, slots: ['top', 'bottom', 'footwear'], choicesPerSlot: 5, timePerCustomer: 22, hints: 1, lives: 3 },
+          hard: { customers: 8, slots: ['top', 'bottom', 'footwear', 'accessory'], choicesPerSlot: 6, timePerCustomer: 15, hints: 0, lives: 2 }
+        },
+        tagMatch: {
+          easy: { pairs: 6, cols: 4, rows: 3, time: 90, moveCap: null, peekMs: 3000, flipBackMs: 1200, restockEvery: null },
+          medium: { pairs: 8, cols: 4, rows: 4, time: 75, moveCap: 28, peekMs: 1500, flipBackMs: 900, restockEvery: null },
+          hard: { pairs: 10, cols: 5, rows: 4, time: 60, moveCap: 30, peekMs: 0, flipBackMs: 600, restockEvery: 5 }
+        },
+        dhakaDash: {
+          easy: { speedStart: 240, speedEnd: 300, spawnInterval: 1.4, hearts: 3, goalParcels: 12, time: 75, hitboxScale: 0.72 },
+          medium: { speedStart: 320, speedEnd: 420, spawnInterval: 1.0, hearts: 3, goalParcels: 18, time: 75, hitboxScale: 0.82 },
+          hard: { speedStart: 440, speedEnd: 580, spawnInterval: 0.7, hearts: 2, goalParcels: 25, time: 75, hitboxScale: 0.88 }
+        },
+        rackSorter: {
+          easy: {
+            racks: [
+              { id: 'top', key: '1', labelKey: 'rackTops' },
+              { id: 'bottom', key: '2', labelKey: 'rackBottoms' }
+            ],
+            spawnInterval: 2.2,
+            beltSpeed: 14, // % of belt per sec
+            goal: 20,
+            time: 60,
+            mistakesAllowed: 4,
+            defects: false
+          },
+          medium: {
+            racks: [
+              { id: 'top', key: '1', labelKey: 'rackTops' },
+              { id: 'bottom', key: '2', labelKey: 'rackBottoms' },
+              { id: 'foot_acc', key: '3', labelKey: 'rackFootAcc' }
+            ],
+            spawnInterval: 1.5,
+            beltSpeed: 19,
+            goal: 30,
+            time: 60,
+            mistakesAllowed: 3,
+            defects: false
+          },
+          hard: {
+            racks: [
+              { id: 'top', key: '1', labelKey: 'rackTops' },
+              { id: 'bottom', key: '2', labelKey: 'rackBottoms' },
+              { id: 'footwear', key: '3', labelKey: 'rackFootwear' },
+              { id: 'accessory', key: '4', labelKey: 'rackAccessories' },
+              { id: 'defect', key: '5', labelKey: 'rackReturn', isReturn: true }
+            ],
+            spawnInterval: 1.0,
+            beltSpeed: 24,
+            goal: 40,
+            time: 60,
+            mistakesAllowed: 3,
+            defects: true
+          }
+        }
+      };
+
+      /* ==========================================
+         2. i18n DICTIONARY (EN & BANGLA)
+         ========================================== */
+      const i18n = {
+        lang: 'en',
+        strings: {
+          en: {
+            splashTagline: "men's fashion · dhaka",
+            playBtn: "play",
+            splashHint: "press enter or tap play",
+            heroKicker: "dhaka lookbook arcade",
+            heroHeadline: "play the rman way",
+            heroSubline: "four mini-games. pick your pace.",
+            footerLine: "rman · Men's fashion · Dhaka, Bangladesh",
+            visitFb: "Visit rman on Facebook",
+            diffEasy: "easy",
+            diffMedium: "medium",
+            diffHard: "hard",
+            startBtn: "start",
+            homeBtn: "home",
+            pauseBtn: "pause",
+            hudScore: "score",
+            hudTime: "timer",
+            hudProgress: "progress",
+            hudLives: "lives",
+            hudMoves: "moves",
+            hudMistakes: "mistakes",
+            hintBtn: "hint",
+            submitLookBtn: "submit look",
+            leftBtn: "left",
+            jumpBtn: "jump",
+            rightBtn: "right",
+            upcomingQueue: "next in queue:",
+            pausedTitle: "game paused",
+            resumeBtn: "resume",
+            restartBtn: "restart",
+            changeDiffBtn: "change difficulty",
+            finalScoreLabel: "final score",
+            personalBestLabel: "personal best:",
+            newBestBadge: "new best!",
+            playAgainBtn: "play again",
+            nextGameBtn: "next game",
+            bestScoreLabel: "best",
+            winTitle: "stage cleared",
+            loseTitle: "run ended",
+            perfectLookToast: "perfect look! +bonus",
+            goodLookToast: "look submitted",
+            wrongLookToast: "missed the brief!",
+            restockToast: "restock shuffle!",
+            soldText: "SOLD",
+            defectText: "DEFECT",
+            slot_top: "top",
+            slot_bottom: "bottom",
+            slot_footwear: "footwear",
+            slot_accessory: "accessory",
+            tone_light: "light",
+            tone_dark: "dark",
+            tone_neutral: "neutral",
+            rackTops: "tops",
+            rackBottoms: "bottoms",
+            rackFootAcc: "footwear & acc.",
+            rackFootwear: "footwear",
+            rackAccessories: "accessories",
+            rackReturn: "return bin",
+            games: {
+              styleBrief: {
+                title: "style brief",
+                desc: "dress the mannequin to match each customer's occasion and mood.",
+                howto: [
+                  "Read the customer's occasion brief and tone request at the top.",
+                  "Touch/Mouse: drag or tap garments into the mannequin slots; tap a slot to clear.",
+                  "Keyboard: Tab to select garments, Enter to place, H for Hint, S to Submit Look."
+                ]
+              },
+              tagMatch: {
+                title: "tag match",
+                desc: "flip lookbook cards to pair matching garments and stamp them sold.",
+                howto: [
+                  "Memorize garment cards during the opening peek and pair identical items.",
+                  "Touch/Mouse: tap any face-down card to flip up to two cards at a time.",
+                  "Keyboard: Tab across the grid and press Enter or Space to flip a card."
+                ]
+              },
+              dhakaDash: {
+                title: "dhaka dash",
+                desc: "weave through dhaka traffic on your scooter to deliver rman parcels.",
+                howto: [
+                  "Collect rman parcels to reach the delivery target before time runs out.",
+                  "Touch: swipe left/right to switch lanes, swipe up to jump, or use bottom buttons.",
+                  "Keyboard: Left/Right arrows or A/D to switch lanes; Up/W/Space to jump potholes."
+                ]
+              },
+              rackSorter: {
+                title: "rack sorter",
+                desc: "sort incoming stock on the conveyor belt into the right hanger racks.",
+                howto: [
+                  "Send the highlighted front garment on the belt to its matching category rack.",
+                  "Touch/Mouse: tap the matching rack button or swipe the front item toward a rack.",
+                  "Keyboard: press number keys 1–5 (or arrow keys) matching the rack labels."
+                ]
+              }
+            }
+          },
+          bn: {
+            splashTagline: "মেনস ফ্যাশন · ঢাকা",
+            playBtn: "খেলুন",
+            splashHint: "এন্টার চাপুন বা খেলুন ট্যাপ করুন",
+            heroKicker: "ঢাকা লুকবুক আর্কেড",
+            heroHeadline: "rman স্টাইলে খেলুন",
+            heroSubline: "চারটি মিনি-গেম। আপনার পছন্দমতো গতি বেছে নিন।",
+            footerLine: "rman · মেনস ফ্যাশন · ঢাকা, বাংলাদেশ",
+            visitFb: "ফেসবুকে rman দেখুন",
+            diffEasy: "সহজ",
+            diffMedium: "মাঝারি",
+            diffHard: "কঠিন",
+            startBtn: "শুরু করুন",
+            homeBtn: "হোম",
+            pauseBtn: "বিরতি",
+            hudScore: "স্কোর",
+            hudTime: "সময়",
+            hudProgress: "অগ্রগতি",
+            hudLives: "লাইফ",
+            hudMoves: "চাল",
+            hudMistakes: "ভুল",
+            hintBtn: "হিন্ট",
+            submitLookBtn: "লুক জমা দিন",
+            leftBtn: "বামে",
+            jumpBtn: "লাফ",
+            rightBtn: "ডানে",
+            upcomingQueue: "পরবর্তী আইটেম:",
+            pausedTitle: "খেলা বিরতি",
+            resumeBtn: "চালিয়ে যান",
+            restartBtn: "আবার শুরু",
+            changeDiffBtn: "লেভেল বদলান",
+            finalScoreLabel: "চূড়ান্ত স্কোর",
+            personalBestLabel: "সেরা স্কোর:",
+            newBestBadge: "নতুন রেকর্ড!",
+            playAgainBtn: "আবার খেলুন",
+            nextGameBtn: "পরের গেম",
+            bestScoreLabel: "সেরা",
+            winTitle: "চমৎকার জয়!",
+            loseTitle: "সময় বা লাইফ শেষ",
+            perfectLookToast: "পারফেক্ট লুক! +বোনাস",
+            goodLookToast: "লুক জমা হয়েছে",
+            wrongLookToast: "ব্রিফ অনুযায়ী মেলেনি!",
+            restockToast: "রিস্টক শাফল!",
+            soldText: "SOLD",
+            defectText: "ত্রুটি",
+            slot_top: "টপ",
+            slot_bottom: "বটম",
+            slot_footwear: "জুতা",
+            slot_accessory: "অ্যাক্সেসরি",
+            tone_light: "হালকা",
+            tone_dark: "গাঢ়",
+            tone_neutral: "নিউট্রাল",
+            rackTops: "টপস",
+            rackBottoms: "বটমস",
+            rackFootAcc: "জুতা ও অ্যাক্সেসরি",
+            rackFootwear: "জুতা",
+            rackAccessories: "অ্যাক্সেসরি",
+            rackReturn: "রিটার্ন বিন",
+            games: {
+              styleBrief: {
+                title: "স্টাইল ব্রিফ",
+                desc: "কাস্টমারের উপলক্ষ ও পছন্দ অনুযায়ী ম্যানিকুইনকে সাজিয়ে তুলুন।",
+                howto: [
+                  "উপরে কাস্টমারের উপলক্ষ এবং রঙের নির্দেশনাটি মনোযোগ দিয়ে পড়ুন।",
+                  "টাচ/মাউস: পোশাক টেনে বা ট্যাপ করে স্লটে বসান; সরাতে স্লটে ট্যাপ করুন।",
+                  "কিবোর্ড: Tab দিয়ে পোশাক বাছুন, Enter দিয়ে বসান, H হিন্ট, S সাবমিট।"
+                ]
+              },
+              tagMatch: {
+                title: "ট্যাগ ম্যাচ",
+                desc: "কার্ড উল্টে একই পোশাকের জোড়া মেলান এবং SOLD স্ট্যাম্প দিন।",
+                howto: [
+                  "শুরুর ঝলকে কার্ডগুলো মনে রাখুন এবং একই পোশাকের জোড়া মেলান।",
+                  "টাচ/মাউস: যেকোনো কার্ডে ট্যাপ করে একসাথে দুটি কার্ড উল্টে দেখুন।",
+                  "কিবোর্ড: Tab দিয়ে কার্ডে যান এবং Enter বা Space চেপে উল্টান।"
+                ]
+              },
+              dhakaDash: {
+                title: "ঢাকা ড্যাশ",
+                desc: "স্কুটারে ঢাকার ট্রাফিক পেরিয়ে সময়মতো rman পার্সেল পৌঁছে দিন।",
+                howto: [
+                  "সময় শেষ হওয়ার আগে লক্ষ্যমাত্রা অনুযায়ী rman পার্সেল সংগ্রহ করুন।",
+                  "টাচ: বামে/ডানে সোয়াইপ করে লেন বদলান, উপরে সোয়াইপ বা বাটনে লাফ দিন।",
+                  "কিবোর্ড: বাম/ডান অ্যারো বা A/D দিয়ে লেন বদলান; Up/W/Space দিয়ে লাফ দিন।"
+                ]
+              },
+              rackSorter: {
+                title: "র্যাক সর্টার",
+                desc: "কনভেয়র বেল্টে আসা নতুন পোশাক সঠিক হ্যাঙ্গার র্যাকে পাঠান।",
+                howto: [
+                  "বেল্টের সামনের হাইলাইট করা পোশাকটি সঠিক ক্যাটাগরির র্যাকে পাঠান।",
+                  "টাচ/মাউস: সঠিক র্যাক বাটনে ট্যাপ করুন বা আইটেমটি র্যাকের দিকে সোয়াইপ করুন।",
+                  "কিবোর্ড: র্যাকের লেবেল অনুযায়ী 1–5 নম্বর বা অ্যারো কি চাপুন।"
+                ]
+              }
+            }
+          }
+        },
+        t(key) {
+          return this.strings[this.lang][key] || this.strings.en[key] || key;
+        },
+        gameMeta(gameId) {
+          return this.strings[this.lang].games[gameId] || this.strings.en.games[gameId];
+        }
+      };
+
+      /* ==========================================
+         3. UTILS
+         ========================================== */
+      const Utils = {
+        clamp(val, min, max) {
+          return Math.max(min, Math.min(max, val));
+        },
+        randInt(min, max) {
+          return Math.floor(Math.random() * (max - min + 1)) + min;
+        },
+        pick(arr) {
+          return arr[Math.floor(Math.random() * arr.length)];
+        },
+        shuffle(arr) {
+          const copy = arr.slice();
+          for (let i = copy.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            const tmp = copy[i];
+            copy[i] = copy[j];
+            copy[j] = tmp;
+          }
+          return copy;
+        },
+        calculateStars(won, score, maxScore) {
+          if (!won) return 0;
+          if (!maxScore || maxScore <= 0) return 1;
+          const ratio = score / maxScore;
+          if (ratio >= 0.85) return 3;
+          if (ratio >= 0.60) return 2;
+          return 1;
+        }
+      };
+
+      /* ==========================================
+         4. SAFE STORAGE WRAPPER (localStorage + memory fallback)
+         ========================================== */
+      const Storage = {
+        mem: {
+          sound: true,
+          lang: 'en',
+          scores: {},
+          stars: {}
+        },
+        PREFIX: 'rman_play_v1_',
+        init() {
+          try {
+            const rawSound = window.localStorage.getItem(this.PREFIX + 'sound');
+            if (rawSound !== null) this.mem.sound = rawSound === '1';
+            const rawLang = window.localStorage.getItem(this.PREFIX + 'lang');
+            if (rawLang === 'en' || rawLang === 'bn') this.mem.lang = rawLang;
+            const rawScores = window.localStorage.getItem(this.PREFIX + 'scores');
+            if (rawScores) this.mem.scores = JSON.parse(rawScores) || {};
+            const rawStars = window.localStorage.getItem(this.PREFIX + 'stars');
+            if (rawStars) this.mem.stars = JSON.parse(rawStars) || {};
+          } catch (e) {
+            // Storage blocked or unavailable; fallback to in-memory state cleanly
+          }
+          i18n.lang = this.mem.lang;
+        },
+        getSound() {
+          return this.mem.sound;
+        },
+        setSound(enabled) {
+          this.mem.sound = !!enabled;
+          try {
+            window.localStorage.setItem(this.PREFIX + 'sound', this.mem.sound ? '1' : '0');
+          } catch (e) {}
+        },
+        setLang(lang) {
+          this.mem.lang = lang;
+          try {
+            window.localStorage.setItem(this.PREFIX + 'lang', lang);
+          } catch (e) {}
+        },
+        getBestScore(gameId, diff) {
+          const k = gameId + '_' + diff;
+          return this.mem.scores[k] || 0;
+        },
+        getBestStars(gameId, diff) {
+          const k = gameId + '_' + diff;
+          return this.mem.stars[k] || 0;
+        },
+        recordResult(gameId, diff, score, stars) {
+          const k = gameId + '_' + diff;
+          const prevBest = this.mem.scores[k] || 0;
+          const prevStars = this.mem.stars[k] || 0;
+          const isNewBest = score > prevBest;
+          if (isNewBest) this.mem.scores[k] = score;
+          if (stars > prevStars) this.mem.stars[k] = stars;
+          try {
+            window.localStorage.setItem(this.PREFIX + 'scores', JSON.stringify(this.mem.scores));
+            window.localStorage.setItem(this.PREFIX + 'stars', JSON.stringify(this.mem.stars));
+          } catch (e) {}
+          return { isNewBest, bestScore: this.mem.scores[k] || 0, bestStars: this.mem.stars[k] || 0 };
+        },
+        getGameSummary(gameId) {
+          let bestScore = 0;
+          let totalStars = 0;
+          ['easy', 'medium', 'hard'].forEach((d) => {
+            bestScore = Math.max(bestScore, this.getBestScore(gameId, d));
+            totalStars += this.getBestStars(gameId, d);
+          });
+          return { bestScore, totalStars };
+        },
+        getTotalStars() {
+          let sum = 0;
+          Config.gamesOrder.forEach((g) => {
+            ['easy', 'medium', 'hard'].forEach((d) => {
+              sum += this.getBestStars(g, d);
+            });
+          });
+          return sum;
+        }
+      };
+
+      /* ==========================================
+         5. WEB AUDIO SYNTHESIZER
+         ========================================== */
+      const AudioSynth = {
+        ctx: null,
+        masterGain: null,
+        ensureContext() {
+          if (!Storage.getSound()) return null;
+          if (!this.ctx) {
+            try {
+              const AC = window.AudioContext || window.webkitAudioContext;
+              if (!AC) return null;
+              this.ctx = new AC();
+              this.masterGain = this.ctx.createGain();
+              this.masterGain.gain.value = 0.24; // Quiet, refined master gain (~0.25)
+              this.masterGain.connect(this.ctx.destination);
+            } catch (e) {
+              return null;
+            }
+          }
+          if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume().catch(() => {});
+          }
+          return this.ctx;
+        },
+        tone(freq, type, duration, startDelay, endFreq, vol) {
+          const ctx = this.ensureContext();
+          if (!ctx || !this.masterGain) return;
+          try {
+            const now = ctx.currentTime + (startDelay || 0);
+            const osc = ctx.createOscillator();
+            const g = ctx.createGain();
+            osc.type = type || 'sine';
+            osc.frequency.setValueAtTime(freq, now);
+            if (endFreq) {
+              osc.frequency.exponentialRampToValueAtTime(Math.max(20, endFreq), now + duration);
+            }
+            const peak = vol !== undefined ? vol : 0.6;
+            g.gain.setValueAtTime(0.001, now);
+            g.gain.linearRampToValueAtTime(peak, now + 0.01);
+            g.gain.exponentialRampToValueAtTime(0.001, now + duration);
+            osc.connect(g);
+            g.connect(this.masterGain);
+            osc.start(now);
+            osc.stop(now + duration + 0.02);
+          } catch (e) {}
+        },
+        noise(duration, filterFreq, vol) {
+          const ctx = this.ensureContext();
+          if (!ctx || !this.masterGain) return;
+          try {
+            const bufferSize = Math.max(1, Math.floor(ctx.sampleRate * duration));
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+              data[i] = Math.random() * 2 - 1;
+            }
+            const src = ctx.createBufferSource();
+            src.buffer = buffer;
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = filterFreq || 900;
+            const g = ctx.createGain();
+            const now = ctx.currentTime;
+            g.gain.setValueAtTime(vol || 0.5, now);
+            g.gain.exponentialRampToValueAtTime(0.001, now + duration);
+            src.connect(filter);
+            filter.connect(g);
+            g.connect(this.masterGain);
+            src.start(now);
+          } catch (e) {}
+        },
+        play(effect) {
+          if (!Storage.getSound()) return;
+          switch (effect) {
+            case 'tap':
+              this.tone(520, 'sine', 0.05, 0, 380, 0.35);
+              break;
+            case 'correct':
+              this.tone(523.25, 'triangle', 0.09, 0, 587.33, 0.45);
+              this.tone(659.25, 'triangle', 0.14, 0.07, 783.99, 0.5);
+              break;
+            case 'wrong':
+              this.tone(210, 'sawtooth', 0.14, 0, 150, 0.4);
+              this.tone(165, 'sawtooth', 0.18, 0.08, 120, 0.4);
+              break;
+            case 'combo':
+              this.tone(587.33, 'sine', 0.08, 0, 659.25, 0.45);
+              this.tone(783.99, 'sine', 0.08, 0.06, 880, 0.5);
+              this.tone(1046.5, 'triangle', 0.16, 0.12, 1174.66, 0.55);
+              break;
+            case 'tick':
+              this.tone(660, 'sine', 0.06, 0, 640, 0.35);
+              break;
+            case 'win':
+              this.tone(523.25, 'triangle', 0.11, 0, null, 0.5);
+              this.tone(659.25, 'triangle', 0.11, 0.10, null, 0.5);
+              this.tone(783.99, 'triangle', 0.11, 0.20, null, 0.5);
+              this.tone(1046.5, 'triangle', 0.28, 0.30, null, 0.6);
+              break;
+            case 'lose':
+              this.tone(349.23, 'triangle', 0.14, 0, 329.63, 0.45);
+              this.tone(293.66, 'triangle', 0.14, 0.12, 261.63, 0.45);
+              this.tone(220.0, 'sawtooth', 0.26, 0.24, 174.61, 0.4);
+              break;
+            case 'whoosh':
+              this.noise(0.11, 1200, 0.32);
+              this.tone(300, 'sine', 0.09, 0, 520, 0.25);
+              break;
+            case 'pickup':
+              this.tone(740, 'sine', 0.07, 0, 987.77, 0.45);
+              this.tone(987.77, 'sine', 0.11, 0.05, 1318.5, 0.45);
+              break;
+            case 'crash':
+              this.noise(0.22, 550, 0.65);
+              this.tone(140, 'sawtooth', 0.2, 0, 65, 0.5);
+              break;
+            case 'stamp':
+              this.noise(0.09, 420, 0.55);
+              this.tone(160, 'triangle', 0.08, 0, 95, 0.5);
+              break;
+          }
+        }
+      };
+
+      /* ==========================================
+         6. GARMENT & ILLUSTRATION SVG ENGINE
+         ========================================== */
+      const Garments = [
+        // TOPS (8)
+        { id: 'tshirt_light', slot: 'top', type: 'tshirt', nameEn: 'cotton tee', nameBn: 'কটন টি-শার্ট', tone: 'light', fill: '#F4F4F2', stroke: '#1C1C1C', tags: ['casual', 'weekend', 'sporty'] },
+        { id: 'tshirt_dark', slot: 'top', type: 'tshirt', nameEn: 'ink crew tee', nameBn: 'কালো টি-শার্ট', tone: 'dark', fill: '#2E2E2E', stroke: '#1C1C1C', tags: ['casual', 'sporty', 'weekend'] },
+        { id: 'polo_neutral', slot: 'top', type: 'polo', nameEn: 'pique polo', nameBn: 'পিকে পোলো', tone: 'neutral', fill: '#D4D4CE', stroke: '#1C1C1C', tags: ['casual', 'weekend', 'formal'] },
+        { id: 'shirt_light', slot: 'top', type: 'shirt', nameEn: 'oxford shirt', nameBn: 'ফরমাল শার্ট', tone: 'light', fill: '#FFFFFF', stroke: '#1C1C1C', tags: ['formal', 'festive'] },
+        { id: 'shirt_dark', slot: 'top', type: 'shirt', nameEn: 'charcoal shirt', nameBn: 'চারকোল শার্ট', tone: 'dark', fill: '#2E2E2E', stroke: '#1C1C1C', tags: ['formal', 'weekend', 'festive'] },
+        { id: 'panjabi_light', slot: 'top', type: 'panjabi', nameEn: 'ivory panjabi', nameBn: 'আইভরি পাঞ্জাবি', tone: 'light', fill: '#F8F8F5', stroke: '#1C1C1C', tags: ['festive', 'formal'] },
+        { id: 'panjabi_dark', slot: 'top', type: 'panjabi', nameEn: 'noir panjabi', nameBn: 'কালো পাঞ্জাবি', tone: 'dark', fill: '#1C1C1C', stroke: '#2E2E2E', tags: ['festive'] },
+        { id: 'hoodie_neutral', slot: 'top', type: 'hoodie', nameEn: 'urban hoodie', nameBn: 'আরবান হুডি', tone: 'neutral', fill: '#B8B8B2', stroke: '#1C1C1C', tags: ['sporty', 'casual', 'weekend'] },
+
+        // BOTTOMS (6)
+        { id: 'jeans_dark', slot: 'bottom', type: 'jeans', nameEn: 'raw denim', nameBn: 'ডেনিম জিন্স', tone: 'dark', fill: '#2E2E2E', stroke: '#1C1C1C', tags: ['casual', 'weekend'] },
+        { id: 'jeans_light', slot: 'bottom', type: 'jeans', nameEn: 'washed denim', nameBn: 'ওয়াশড জিন্স', tone: 'light', fill: '#E8E8E3', stroke: '#1C1C1C', tags: ['casual', 'weekend'] },
+        { id: 'chinos_light', slot: 'bottom', type: 'chinos', nameEn: 'stone chinos', nameBn: 'স্টোন চিনোস', tone: 'light', fill: '#EFEFE9', stroke: '#1C1C1C', tags: ['casual', 'formal', 'weekend', 'festive'] },
+        { id: 'chinos_neutral', slot: 'bottom', type: 'chinos', nameEn: 'ash chinos', nameBn: 'অ্যাশ চিনোস', tone: 'neutral', fill: '#C8C8C2', stroke: '#1C1C1C', tags: ['casual', 'formal', 'weekend'] },
+        { id: 'trousers_dark', slot: 'bottom', type: 'trousers', nameEn: 'tailored trouser', nameBn: 'ফরমাল ট্রাউজার', tone: 'dark', fill: '#1C1C1C', stroke: '#1C1C1C', tags: ['formal', 'festive'] },
+        { id: 'joggers_neutral', slot: 'bottom', type: 'joggers', nameEn: 'knit joggers', nameBn: 'নিট জগার্স', tone: 'neutral', fill: '#BEBEB8', stroke: '#1C1C1C', tags: ['sporty', 'casual', 'weekend'] },
+
+        // FOOTWEAR (6)
+        { id: 'sneakers_light', slot: 'footwear', type: 'sneakers', nameEn: 'court sneaker', nameBn: 'হোয়াইট স্নিকার্স', tone: 'light', fill: '#FFFFFF', stroke: '#1C1C1C', tags: ['casual', 'sporty', 'weekend'] },
+        { id: 'loafers_dark', slot: 'footwear', type: 'loafers', nameEn: 'leather loafer', nameBn: 'লেদার লোফার', tone: 'dark', fill: '#1C1C1C', stroke: '#1C1C1C', tags: ['formal', 'festive', 'weekend'] },
+        { id: 'loafers_light', slot: 'footwear', type: 'loafers', nameEn: 'suede loafer', nameBn: 'সুয়েড লোফার', tone: 'light', fill: '#ECECE6', stroke: '#1C1C1C', tags: ['formal', 'festive', 'weekend'] },
+        { id: 'sandals_neutral', slot: 'footwear', type: 'sandals', nameEn: 'slide sandal', nameBn: 'স্লাইড স্যান্ডেল', tone: 'neutral', fill: '#C8C8C2', stroke: '#1C1C1C', tags: ['festive', 'casual', 'weekend'] },
+        { id: 'sandals_dark', slot: 'footwear', type: 'sandals', nameEn: 'strap sandal', nameBn: 'স্ট্র্যাপ স্যান্ডেল', tone: 'dark', fill: '#2E2E2E', stroke: '#1C1C1C', tags: ['festive', 'casual'] },
+        { id: 'sneakers_dark', slot: 'footwear', type: 'sneakers', nameEn: 'dark runner', nameBn: 'ডার্ক রানার', tone: 'dark', fill: '#2E2E2E', stroke: '#1C1C1C', tags: ['sporty', 'casual'] },
+
+        // ACCESSORIES (6)
+        { id: 'watch_dark', slot: 'accessory', type: 'watch', nameEn: 'chrono watch', nameBn: 'ক্রোনো ঘড়ি', tone: 'dark', fill: '#1C1C1C', stroke: '#1C1C1C', tags: ['formal', 'festive', 'casual', 'weekend'] },
+        { id: 'watch_light', slot: 'accessory', type: 'watch', nameEn: 'silver watch', nameBn: 'সিলভার ঘড়ি', tone: 'light', fill: '#F4F4F2', stroke: '#1C1C1C', tags: ['formal', 'festive', 'weekend'] },
+        { id: 'cap_neutral', slot: 'accessory', type: 'cap', nameEn: 'twill cap', nameBn: 'টুইল ক্যাপ', tone: 'neutral', fill: '#C8C8C2', stroke: '#1C1C1C', tags: ['sporty', 'casual', 'weekend'] },
+        { id: 'cap_dark', slot: 'accessory', type: 'cap', nameEn: 'noir cap', nameBn: 'কালো ক্যাপ', tone: 'dark', fill: '#1C1C1C', stroke: '#1C1C1C', tags: ['sporty', 'casual', 'weekend'] },
+        { id: 'sunglasses_dark', slot: 'accessory', type: 'sunglasses', nameEn: 'frame shades', nameBn: 'সানগ্লাস', tone: 'dark', fill: '#1C1C1C', stroke: '#1C1C1C', tags: ['casual', 'weekend', 'festive', 'sporty'] },
+        { id: 'belt_light', slot: 'accessory', type: 'belt', nameEn: 'woven belt', nameBn: 'বেল্ট', tone: 'light', fill: '#EAEAE4', stroke: '#1C1C1C', tags: ['formal', 'casual', 'festive'] }
+      ];
+
+      function renderGarmentSVG(item) {
+        const f = item.fill || '#F4F4F2';
+        const s = item.stroke || '#1C1C1C';
+        const detail = f === '#1C1C1C' || f === '#2E2E2E' ? '#F4F4F2' : '#1C1C1C';
+        switch (item.type) {
+          case 'tshirt':
+            return `<svg viewBox="0 0 64 64" fill="none"><path d="M18 12L6 22l6 9 8-5v26h24V26l8 5 6-9-12-10c-2 4-5 6-10 6s-8-2-10-6z" fill="${f}" stroke="${s}" stroke-width="2.5" stroke-linejoin="round"/><path d="M25 26h14" stroke="${detail}" stroke-width="1.8" stroke-linecap="round" opacity="0.45"/></svg>`;
+          case 'polo':
+            return `<svg viewBox="0 0 64 64" fill="none"><path d="M18 13L7 22l5 9 8-5v26h24V26l8 5 5-9-11-9H18z" fill="${f}" stroke="${s}" stroke-width="2.5" stroke-linejoin="round"/><path d="M22 13l10 8 10-8M32 21v10" stroke="${detail}" stroke-width="2" stroke-linecap="round"/></svg>`;
+          case 'shirt':
+            return `<svg viewBox="0 0 64 64" fill="none"><path d="M18 11L8 21l5 9 7-4v27h24V26l7 4 5-9-10-10H18z" fill="${f}" stroke="${s}" stroke-width="2.5" stroke-linejoin="round"/><path d="M32 18v35M23 11l9 8 9-8" stroke="${detail}" stroke-width="1.8"/><circle cx="32" cy="26" r="1.3" fill="${detail}"/><circle cx="32" cy="34" r="1.3" fill="${detail}"/></svg>`;
+          case 'panjabi':
+            return `<svg viewBox="0 0 64 64" fill="none"><path d="M19 9L9 20l4 8 6-4v32h26V24l6 4 4-8L45 9c-3 3-8 4-13 4S22 12 19 9z" fill="${f}" stroke="${s}" stroke-width="2.5" stroke-linejoin="round"/><path d="M32 13v18M28 16h8M28 22h8" stroke="${detail}" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+          case 'hoodie':
+            return `<svg viewBox="0 0 64 64" fill="none"><path d="M21 14c0-5 5-8 11-8s11 3 11 8l11 9-5 9-7-4v24H22V28l-7 4-5-9 11-9z" fill="${f}" stroke="${s}" stroke-width="2.5" stroke-linejoin="round"/><path d="M25 40h14v8H25z" stroke="${detail}" stroke-width="1.6"/></svg>`;
+          case 'jeans':
+            return `<svg viewBox="0 0 64 64" fill="none"><path d="M18 10h28l3 44h-12l-5-26-5 26H15l3-44z" fill="${f}" stroke="${s}" stroke-width="2.5" stroke-linejoin="round"/><path d="M18 17h28M32 10v14" stroke="${detail}" stroke-width="1.6"/></svg>`;
+          case 'chinos':
+          case 'trousers':
+            return `<svg viewBox="0 0 64 64" fill="none"><path d="M19 10h26l2 44H35l-3-25-3 25H17l2-44z" fill="${f}" stroke="${s}" stroke-width="2.5" stroke-linejoin="round"/><path d="M23 18v32M41 18v32" stroke="${detail}" stroke-width="1.2" stroke-dasharray="2 2" opacity="0.6"/></svg>`;
+          case 'joggers':
+            return `<svg viewBox="0 0 64 64" fill="none"><path d="M19 10h26l2 38-3 6h-8l-4-24-4 24h-8l-3-6 2-38z" fill="${f}" stroke="${s}" stroke-width="2.5" stroke-linejoin="round"/><path d="M19 15h26" stroke="${detail}" stroke-width="1.8"/></svg>`;
+          case 'sneakers':
+            return `<svg viewBox="0 0 64 64" fill="none"><path d="M10 42V24h14l8 10h18c4 0 6 3 6 8v4H10v-4z" fill="${f}" stroke="${s}" stroke-width="2.5" stroke-linejoin="round"/><path d="M10 43h46" stroke="${detail}" stroke-width="2"/><path d="M24 28l5 5" stroke="${detail}" stroke-width="2" stroke-linecap="round"/></svg>`;
+          case 'loafers':
+            return `<svg viewBox="0 0 64 64" fill="none"><path d="M8 40c0-7 6-12 14-12h10l8 6h14c3 0 5 3 5 6v5H8v-5z" fill="${f}" stroke="${s}" stroke-width="2.5" stroke-linejoin="round"/><path d="M24 33h10" stroke="${detail}" stroke-width="2" stroke-linecap="round"/></svg>`;
+          case 'sandals':
+            return `<svg viewBox="0 0 64 64" fill="none"><rect x="10" y="38" width="44" height="7" rx="3.5" fill="${f}" stroke="${s}" stroke-width="2.5"/><path d="M20 38c2-8 14-8 18 0M34 38c2-6 10-6 12 0" stroke="${s}" stroke-width="3" stroke-linecap="round"/></svg>`;
+          case 'watch':
+            return `<svg viewBox="0 0 64 64" fill="none"><rect x="26" y="8" width="12" height="48" rx="3" fill="${f}" stroke="${s}" stroke-width="2.2"/><circle cx="32" cy="32" r="12" fill="#FFFFFF" stroke="${s}" stroke-width="2.5"/><path d="M32 25v7l5 3" stroke="#1C1C1C" stroke-width="2.2" stroke-linecap="round"/></svg>`;
+          case 'cap':
+            return `<svg viewBox="0 0 64 64" fill="none"><path d="M14 36c0-11 8-18 18-18s18 7 18 18H14z" fill="${f}" stroke="${s}" stroke-width="2.5"/><path d="M12 36h44c2 0 3 4-2 5H14c-3 0-4-3-2-5z" fill="${s}"/></svg>`;
+          case 'sunglasses':
+            return `<svg viewBox="0 0 64 64" fill="none"><rect x="8" y="24" width="20" height="15" rx="4" fill="${f}" stroke="${s}" stroke-width="2.5"/><rect x="36" y="24" width="20" height="15" rx="4" fill="${f}" stroke="${s}" stroke-width="2.5"/><path d="M28 28h8M4 27h4M56 27h4" stroke="${s}" stroke-width="2.5" stroke-linecap="round"/></svg>`;
+          case 'belt':
+            return `<svg viewBox="0 0 64 64" fill="none"><rect x="8" y="26" width="48" height="12" rx="4" fill="${f}" stroke="${s}" stroke-width="2.5"/><rect x="24" y="23" width="14" height="18" rx="3" fill="#FFFFFF" stroke="${s}" stroke-width="2.5"/><path d="M31 32h7" stroke="${s}" stroke-width="2.5" stroke-linecap="round"/></svg>`;
+          default:
+            return `<svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="20" fill="${f}" stroke="${s}" stroke-width="2"/></svg>`;
+        }
+      }
+
+      function getCardIllustrationSVG(gameId) {
+        switch (gameId) {
+          case 'styleBrief':
+            return `<svg viewBox="0 0 220 120" fill="none">
+              <circle cx="72" cy="24" r="10" stroke="#1C1C1C" stroke-width="2.2"/>
+              <path d="M54 42l-10 12 6 7 8-5v32h28V56l8 5 6-7-10-12H54z" fill="#1C1C1C"/>
+              <rect x="118" y="22" width="72" height="22" rx="6" fill="#FFFFFF" stroke="#1C1C1C" stroke-width="2"/>
+              <rect x="118" y="52" width="72" height="22" rx="6" fill="#FFFFFF" stroke="#1C1C1C" stroke-width="2"/>
+              <circle cx="130" cy="33" r="4" fill="#FF4D2E"/>
+              <path d="M142 33h34M130 63h44" stroke="#1C1C1C" stroke-width="2" stroke-linecap="round"/>
+            </svg>`;
+          case 'tagMatch':
+            return `<svg viewBox="0 0 220 120" fill="none">
+              <rect x="46" y="18" width="56" height="82" rx="10" fill="#1C1C1C"/>
+              <circle cx="74" cy="59" r="14" fill="#2E2E2E" stroke="#F4F4F2" stroke-width="1.5"/>
+              <rect x="116" y="18" width="56" height="82" rx="10" fill="#FFFFFF" stroke="#1C1C1C" stroke-width="2.2"/>
+              <path d="M134 44l-6 7 4 5 5-3v18h14V53l5 3 4-5-6-7h-20z" fill="#F4F4F2" stroke="#1C1C1C" stroke-width="1.8"/>
+              <rect x="126" y="74" width="36" height="13" rx="3" fill="#FF4D2E"/>
+            </svg>`;
+          case 'dhakaDash':
+            return `<svg viewBox="0 0 220 120" fill="none">
+              <path d="M64 110L86 12h48l22 98" stroke="#1C1C1C" stroke-width="2"/>
+              <path d="M110 18v88" stroke="#9A9A9A" stroke-width="2" stroke-dasharray="6 6"/>
+              <rect x="96" y="58" width="28" height="36" rx="8" fill="#1C1C1C"/>
+              <circle cx="110" cy="46" r="7" fill="#FF4D2E"/>
+              <rect x="101" y="70" width="18" height="16" rx="3" fill="#2E2E2E" stroke="#FFFFFF" stroke-width="1.5"/>
+            </svg>`;
+          case 'rackSorter':
+            return `<svg viewBox="0 0 220 120" fill="none">
+              <rect x="26" y="34" width="168" height="24" rx="12" fill="#1C1C1C"/>
+              <circle cx="44" cy="46" r="5" fill="#F4F4F2"/>
+              <circle cx="110" cy="46" r="5" fill="#F4F4F2"/>
+              <circle cx="176" cy="46" r="5" fill="#F4F4F2"/>
+              <rect x="92" y="12" width="36" height="32" rx="7" fill="#FFFFFF" stroke="#FF4D2E" stroke-width="2.2"/>
+              <rect x="38" y="72" width="64" height="30" rx="8" fill="#FFFFFF" stroke="#1C1C1C" stroke-width="2"/>
+              <rect x="118" y="72" width="64" height="30" rx="8" fill="#FFFFFF" stroke="#1C1C1C" stroke-width="2"/>
+            </svg>`;
+          default:
+            return '';
+        }
+      }
+
+      /* ==========================================
+         7. UI & SCREEN MANAGER
+         ========================================== */
+      const UI = {
+        currentScreen: 'splash',
+        selectedGameId: 'styleBrief',
+        selectedDifficulty: 'easy',
+        toastTimer: null,
+
+        init() {
+          this.bindGlobalEvents();
+          this.applyLanguage();
+          this.updateSoundIcons();
+          this.renderHomeCards();
+
+          // Support ?autostart=1 for instant dashboard access in automated verification
+          const params = new URLSearchParams(window.location.search);
+          if (params.get('autostart') === '1') {
+            this.showScreen('home');
+          } else {
+            this.showScreen('splash');
+          }
+        },
+
+        bindGlobalEvents() {
+          // Splash Play
+          document.getElementById('btn-splash-play').addEventListener('click', () => {
+            AudioSynth.play('tap');
+            this.showScreen('home');
+          });
+
+          // Header Logo -> Home
+          document.getElementById('btn-header-logo').addEventListener('click', () => {
+            AudioSynth.play('tap');
+            this.showScreen('home');
+          });
+
+          // Sound toggles
+          const toggleSound = (e) => {
+            Storage.setSound(!Storage.getSound());
+            this.updateSoundIcons();
+            if (Storage.getSound()) AudioSynth.play('tap');
+            if (e && e.currentTarget) e.currentTarget.blur();
+          };
+          document.getElementById('btn-home-sound').addEventListener('click', toggleSound);
+          document.getElementById('btn-hud-sound').addEventListener('click', toggleSound);
+
+          // Language toggle
+          document.getElementById('btn-lang-toggle').addEventListener('click', () => {
+            AudioSynth.play('tap');
+            const next = i18n.lang === 'en' ? 'bn' : 'en';
+            i18n.lang = next;
+            Storage.setLang(next);
+            this.applyLanguage();
+            this.renderHomeCards();
+            if (document.getElementById('modal-setup').classList.contains('open')) {
+              this.populateSetupSheet(this.selectedGameId);
+            }
+            if (GameManager.activeGame && GameManager.activeGame.onLangChange) {
+              GameManager.activeGame.onLangChange();
+            }
+          });
+
+          // Setup modal controls
+          document.getElementById('btn-setup-close').addEventListener('click', () => {
+            AudioSynth.play('tap');
+            this.closeSetupSheet();
+          });
+          document.getElementById('modal-setup').addEventListener('click', (e) => {
+            if (e.target.id === 'modal-setup') {
+              AudioSynth.play('tap');
+              this.closeSetupSheet();
+            }
+          });
+
+          ['easy', 'medium', 'hard'].forEach((diff) => {
+            document.getElementById('seg-diff-' + diff).addEventListener('click', () => {
+              AudioSynth.play('tap');
+              this.selectSetupDifficulty(diff);
+            });
+          });
+
+          document.getElementById('btn-setup-start').addEventListener('click', () => {
+            AudioSynth.play('tap');
+            this.closeSetupSheet();
+            GameManager.launch(this.selectedGameId, this.selectedDifficulty);
+          });
+
+          // HUD Home & Pause
+          document.getElementById('btn-hud-home').addEventListener('click', () => {
+            AudioSynth.play('tap');
+            GameManager.stopAll();
+            this.closePauseModal();
+            this.showScreen('home');
+          });
+
+          document.getElementById('btn-hud-pause').addEventListener('click', () => {
+            AudioSynth.play('tap');
+            GameManager.togglePause();
+          });
+
+          // Pause Modal buttons
+          document.getElementById('btn-pause-resume').addEventListener('click', () => {
+            AudioSynth.play('tap');
+            GameManager.resume();
+          });
+          document.getElementById('btn-pause-restart').addEventListener('click', () => {
+            AudioSynth.play('tap');
+            this.closePauseModal();
+            GameManager.launch(GameManager.currentGameId, GameManager.currentDifficulty);
+          });
+          document.getElementById('btn-pause-diff').addEventListener('click', () => {
+            AudioSynth.play('tap');
+            const gId = GameManager.currentGameId;
+            GameManager.stopAll();
+            this.closePauseModal();
+            this.showScreen('home');
+            this.openSetupSheet(gId);
+          });
+          document.getElementById('btn-pause-home').addEventListener('click', () => {
+            AudioSynth.play('tap');
+            GameManager.stopAll();
+            this.closePauseModal();
+            this.showScreen('home');
+          });
+
+          // Result Screen buttons
+          document.getElementById('btn-result-again').addEventListener('click', () => {
+            AudioSynth.play('tap');
+            GameManager.launch(GameManager.currentGameId, GameManager.currentDifficulty);
+          });
+          document.getElementById('btn-result-next').addEventListener('click', () => {
+            AudioSynth.play('tap');
+            const idx = Config.gamesOrder.indexOf(GameManager.currentGameId);
+            const nextId = Config.gamesOrder[(idx + 1) % Config.gamesOrder.length];
+            this.selectedGameId = nextId;
+            this.showScreen('home');
+            this.openSetupSheet(nextId);
+          });
+          document.getElementById('btn-result-diff').addEventListener('click', () => {
+            AudioSynth.play('tap');
+            const gId = GameManager.currentGameId;
+            this.showScreen('home');
+            this.openSetupSheet(gId);
+          });
+          document.getElementById('btn-result-home').addEventListener('click', () => {
+            AudioSynth.play('tap');
+            this.showScreen('home');
+          });
+
+          // Global Keyboard Shortcuts (Splash Enter/Space, Pause Esc/P)
+          window.addEventListener('keydown', (e) => {
+            if (this.currentScreen === 'splash' && (e.key === 'Enter' || e.key === ' ')) {
+              e.preventDefault();
+              AudioSynth.play('tap');
+              this.showScreen('home');
+              return;
+            }
+            if (document.getElementById('modal-setup').classList.contains('open')) {
+              if (e.key === 'Escape') {
+                e.preventDefault();
+                this.closeSetupSheet();
+              } else if (e.key === 'Enter') {
+                e.preventDefault();
+                this.closeSetupSheet();
+                GameManager.launch(this.selectedGameId, this.selectedDifficulty);
+              }
+              return;
+            }
+            if (this.currentScreen === 'game') {
+              if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
+                e.preventDefault();
+                GameManager.togglePause();
+              }
+            }
+          });
+        },
+
+        updateSoundIcons() {
+          const on = Storage.getSound();
+          const svgOn = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>`;
+          const svgOff = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`;
+          document.getElementById('icon-home-sound').innerHTML = on ? svgOn : svgOff;
+          document.getElementById('icon-hud-sound').innerHTML = on ? svgOn : svgOff;
+          document.getElementById('btn-home-sound').setAttribute('aria-pressed', on ? 'true' : 'false');
+          document.getElementById('btn-hud-sound').setAttribute('aria-pressed', on ? 'true' : 'false');
+        },
+
+        applyLanguage() {
+          document.documentElement.lang = i18n.lang;
+          document.querySelectorAll('[data-i18n]').forEach((el) => {
+            const key = el.getAttribute('data-i18n');
+            el.textContent = i18n.t(key);
+          });
+          document.getElementById('label-lang-toggle').textContent = i18n.lang === 'en' ? 'EN | বাং' : 'বাং | EN';
+        },
+
+        showScreen(screenName) {
+          this.currentScreen = screenName;
+          ['splash', 'home', 'game', 'result'].forEach((s) => {
+            const el = document.getElementById('screen-' + s);
+            if (el) el.classList.toggle('active', s === screenName);
+          });
+
+          if (screenName === 'splash') {
+            document.body.dataset.state = 'title';
+          } else if (screenName === 'home') {
+            document.body.dataset.state = 'dashboard';
+            this.renderHomeCards();
+          } else if (screenName === 'result') {
+            document.body.dataset.state = 'gameover';
+          }
+        },
+
+        renderHomeCards() {
+          document.getElementById('home-total-stars').textContent = String(Storage.getTotalStars());
+          const grid = document.getElementById('games-grid');
+          grid.innerHTML = '';
+
+          Config.gamesOrder.forEach((gameId, idx) => {
+            const meta = i18n.gameMeta(gameId);
+            const summary = Storage.getGameSummary(gameId);
+            const card = document.createElement('button');
+            card.type = 'button';
+            card.className = 'game-card';
+            card.id = 'card-' + gameId;
+            card.setAttribute('aria-label', meta.title);
+
+            card.innerHTML = `
+              <div style="width:100%; display:flex; flex-direction:column; gap:12px;">
+                <div class="card-top-row">
+                  <span class="card-number">0${idx + 1} · rman</span>
+                  <div class="difficulty-dots" title="Easy / Medium / Hard">
+                    <span></span><span></span><span></span>
+                  </div>
+                </div>
+                <div class="card-illustration" aria-hidden="true">
+                  ${getCardIllustrationSVG(gameId)}
+                </div>
+                <div>
+                  <h2 class="card-title">${meta.title}</h2>
+                  <p class="card-desc">${meta.desc}</p>
+                </div>
+              </div>
+              <div class="card-footer-row" style="width:100%;">
+                <span class="best-score-chip tabular-nums">
+                  <span>★ ${summary.totalStars}/9</span>
+                  <span>·</span>
+                  <span>${i18n.t('bestScoreLabel')}: <strong>${summary.bestScore}</strong></span>
+                </span>
+                <span class="card-play-cue">
+                  <span>${i18n.t('playBtn')}</span>
+                  <span>→</span>
+                </span>
+              </div>
+            `;
+
+            card.addEventListener('click', () => {
+              AudioSynth.play('tap');
+              this.openSetupSheet(gameId);
+            });
+
+            grid.appendChild(card);
+          });
+        },
+
+        openSetupSheet(gameId) {
+          this.selectedGameId = gameId;
+          this.populateSetupSheet(gameId);
+          this.selectSetupDifficulty(this.selectedDifficulty || 'easy');
+          document.getElementById('modal-setup').classList.add('open');
+        },
+
+        populateSetupSheet(gameId) {
+          const meta = i18n.gameMeta(gameId);
+          document.getElementById('setup-game-title').textContent = meta.title;
+          const list = document.getElementById('setup-howto-list');
+          list.innerHTML = meta.howto
+            .map((line) => `<li><span class="how-to-bullet"></span><span>${line}</span></li>`)
+            .join('');
+
+          ['easy', 'medium', 'hard'].forEach((d) => {
+            const best = Storage.getBestScore(gameId, d);
+            const stars = Storage.getBestStars(gameId, d);
+            document.getElementById('seg-best-' + d).textContent = `★ ${stars} · ${best}`;
+          });
+        },
+
+        selectSetupDifficulty(diff) {
+          this.selectedDifficulty = diff;
+          ['easy', 'medium', 'hard'].forEach((d) => {
+            const btn = document.getElementById('seg-diff-' + d);
+            btn.classList.toggle('active', d === diff);
+            btn.setAttribute('aria-checked', d === diff ? 'true' : 'false');
+          });
+        },
+
+        closeSetupSheet() {
+          document.getElementById('modal-setup').classList.remove('open');
+        },
+
+        openPauseModal() {
+          document.getElementById('modal-pause').classList.add('open');
+        },
+
+        closePauseModal() {
+          document.getElementById('modal-pause').classList.remove('open');
+        },
+
+        showToast(text, type) {
+          const el = document.getElementById('game-toast');
+          el.textContent = text;
+          el.className = 'game-feedback-toast show' + (type ? ' ' + type : '');
+          if (this.toastTimer) clearTimeout(this.toastTimer);
+          this.toastTimer = setTimeout(() => {
+            el.classList.remove('show');
+          }, 1200);
+        },
+
+        shakeStage() {
+          const wrap = document.getElementById('game-stage-wrap');
+          wrap.classList.remove('shake');
+          void wrap.offsetWidth;
+          wrap.classList.add('shake');
+        },
+
+        updateHUD({ score, combo, timeRemaining, totalTime, statusLabelKey, statusValue }) {
+          if (score !== undefined) {
+            document.getElementById('hud-score').textContent = String(Math.max(0, Math.round(score)));
+          }
+          if (combo !== undefined) {
+            const chip = document.getElementById('hud-combo');
+            if (combo > 1) {
+              chip.textContent = '×' + combo;
+              chip.classList.add('active');
+            } else {
+              chip.classList.remove('active');
+            }
+          }
+          if (timeRemaining !== undefined && totalTime !== undefined) {
+            const sec = Math.max(0, Math.ceil(timeRemaining));
+            const timerEl = document.getElementById('hud-timer');
+            const barEl = document.getElementById('hud-timer-bar');
+            timerEl.textContent = sec + 's';
+            const pct = Utils.clamp((timeRemaining / totalTime) * 100, 0, 100);
+            barEl.style.width = pct + '%';
+            const isUrgent = timeRemaining <= 10;
+            timerEl.classList.toggle('urgent', isUrgent);
+            barEl.classList.toggle('urgent', isUrgent);
+          }
+          if (statusLabelKey) {
+            document.getElementById('hud-status-label').textContent = i18n.t(statusLabelKey);
+          }
+          if (statusValue !== undefined) {
+            document.getElementById('hud-status-value').textContent = statusValue;
+          }
+        }
+      };
+
+      /* ==========================================
+         8. CENTRAL GAME MANAGER
+         ========================================== */
+      const GameManager = {
+        currentGameId: null,
+        currentDifficulty: 'easy',
+        activeGame: null,
+        isPaused: false,
+        inCountdown: false,
+        countdownTimer: null,
+        scoreAnimFrame: null,
+
+        controllers: {},
+
+        register(id, controller) {
+          this.controllers[id] = controller;
+        },
+
+        stopAll() {
+          if (this.countdownTimer) {
+            clearInterval(this.countdownTimer);
+            this.countdownTimer = null;
+          }
+          if (this.scoreAnimFrame) {
+            cancelAnimationFrame(this.scoreAnimFrame);
+            this.scoreAnimFrame = null;
+          }
+          this.inCountdown = false;
+          this.isPaused = false;
+          document.getElementById('countdown-overlay').classList.remove('active');
+          if (this.activeGame) {
+            this.activeGame.destroy();
+            this.activeGame = null;
+          }
+        },
+
+        launch(gameId, difficulty) {
+          this.stopAll();
+          this.currentGameId = gameId;
+          this.currentDifficulty = difficulty || 'easy';
+          this.activeGame = this.controllers[gameId];
+
+          UI.showScreen('game');
+          document.getElementById('hud-title').textContent = i18n.gameMeta(gameId).title;
+
+          const viewMap = {
+            styleBrief: 'view-style-brief',
+            tagMatch: 'view-tag-match',
+            dhakaDash: 'view-dhaka-dash',
+            rackSorter: 'view-rack-sorter'
+          };
+          Object.keys(viewMap).forEach((k) => {
+            document.getElementById(viewMap[k]).classList.toggle('active', k === gameId);
+          });
+
+          this.activeGame.init(this.currentDifficulty);
+
+          // 3-2-1-GO Countdown
+          this.inCountdown = true;
+          document.body.dataset.state = 'countdown';
+          const overlay = document.getElementById('countdown-overlay');
+          const numEl = document.getElementById('countdown-num');
+          overlay.classList.add('active');
+
+          const steps = ['3', '2', '1', 'GO'];
+          let idx = 0;
+          numEl.textContent = steps[0];
+          AudioSynth.play('tick');
+
+          this.countdownTimer = setInterval(() => {
+            idx++;
+            if (idx < steps.length) {
+              numEl.textContent = steps[idx];
+              numEl.style.animation = 'none';
+              void numEl.offsetWidth;
+              numEl.style.animation = '';
+              AudioSynth.play(idx === steps.length - 1 ? 'correct' : 'tick');
+            } else {
+              clearInterval(this.countdownTimer);
+              this.countdownTimer = null;
+              this.inCountdown = false;
+              overlay.classList.remove('active');
+              document.body.dataset.state = 'playing';
+              if (this.activeGame) this.activeGame.start();
+            }
+          }, 300);
+        },
+
+        togglePause() {
+          if (this.inCountdown || !this.activeGame) return;
+          if (this.isPaused) {
+            this.resume();
+          } else {
+            this.pause();
+          }
+        },
+
+        pause() {
+          if (!this.activeGame || this.isPaused || this.inCountdown) return;
+          this.isPaused = true;
+          document.body.dataset.state = 'paused';
+          this.activeGame.pause();
+          UI.openPauseModal();
+        },
+
+        resume() {
+          if (!this.activeGame || !this.isPaused) return;
+          this.isPaused = false;
+          document.body.dataset.state = 'playing';
+          UI.closePauseModal();
+          this.activeGame.resume();
+        },
+
+        finishGame({ won, score, subtitle }) {
+          const gId = this.currentGameId;
+          const diff = this.currentDifficulty;
+          const finalScore = Math.max(0, Math.round(score));
+          this.stopAll();
+
+          const maxScore = Config.maxScores[gId][diff];
+          const stars = Utils.calculateStars(won, finalScore, maxScore);
+          const rec = Storage.recordResult(gId, diff, finalScore, stars);
+
+          AudioSynth.play(won ? 'win' : 'lose');
+          UI.showScreen('result');
+
+          document.getElementById('result-headline').textContent = won ? i18n.t('winTitle') : i18n.t('loseTitle');
+          document.getElementById('result-subline').textContent = subtitle || (i18n.gameMeta(gId).title + ' · ' + i18n.t('diff' + diff.charAt(0).toUpperCase() + diff.slice(1)));
+
+          const starEls = document.querySelectorAll('#result-stars-row .result-star');
+          starEls.forEach((el, idx) => {
+            el.classList.toggle('earned', idx < stars);
+          });
+
+          document.getElementById('result-best-num').textContent = String(rec.bestScore);
+          document.getElementById('result-new-best').classList.toggle('show', rec.isNewBest && finalScore > 0);
+
+          // Score count-up animation
+          const scoreEl = document.getElementById('result-score-num');
+          const startTime = performance.now();
+          const duration = 500;
+          const stepCount = (now) => {
+            const p = Utils.clamp((now - startTime) / duration, 0, 1);
+            scoreEl.textContent = String(Math.round(finalScore * p));
+            if (p < 1) {
+              this.scoreAnimFrame = requestAnimationFrame(stepCount);
+            }
+          };
+          this.scoreAnimFrame = requestAnimationFrame(stepCount);
+        }
+      };
+
+      /* ==========================================
+         9. GAME 1 CONTROLLER — "STYLE BRIEF"
+         ========================================== */
+      const StyleBriefPool = [
+        {
+          id: 'office',
+          occasionEn: 'Office Meeting',
+          occasionBn: 'অফিস মিটিং',
+          tag: 'formal',
+          tone: 'dark',
+          easyBriefEn: 'Tag: Formal',
+          easyBriefBn: 'ট্যাগ: ফরমাল',
+          medBriefEn: 'Formal, dark tones',
+          medBriefBn: 'ফরমাল, গাঢ় রঙ',
+          hardBriefEn: '"Presenting the quarterly pitch to the board this morning."',
+          hardBriefBn: '"আজ সকালে বোর্ড মিটিংয়ে প্রেজেন্টেশন দিতে হবে।"',
+          hardRule: 'unique_tones',
+          hardRuleEn: 'Rule: No two items of the same tone',
+          hardRuleBn: 'নিয়ম: একই রঙের টোন দুইবার নয়'
+        },
+        {
+          id: 'jummah',
+          occasionEn: 'Friday Jummah',
+          occasionBn: 'শুক্রবারের জুম্মা',
+          tag: 'festive',
+          tone: 'light',
+          easyBriefEn: 'Tag: Festive',
+          easyBriefBn: 'ট্যাগ: ফেস্টিভ',
+          medBriefEn: 'Festive, light tones',
+          medBriefBn: 'ফেস্টিভ, হালকা রঙ',
+          hardBriefEn: '"Heading to the mosque at noon, keeping it clean and serene."',
+          hardBriefBn: '"দুপুরে জুম্মার নামাজে যাচ্ছি, স্নিগ্ধ ও পরিপাটি পোশাক চাই।"',
+          hardRule: 'has_light',
+          hardRuleEn: 'Rule: Include at least 1 light tone item',
+          hardRuleBn: 'নিয়ম: অন্তত ১টি হালকা টোনের পোশাক রাখুন'
+        },
+        {
+          id: 'eid',
+          occasionEn: 'Eid Gathering',
+          occasionBn: 'ঈদের দাওয়াত',
+          tag: 'festive',
+          tone: 'dark',
+          easyBriefEn: 'Tag: Festive',
+          easyBriefBn: 'ট্যাগ: ফেস্টিভ',
+          medBriefEn: 'Festive, dark tones',
+          medBriefBn: 'ফেস্টিভ, গাঢ় রঙ',
+          hardBriefEn: '"Hosting cousins for evening Eid dinner at home."',
+          hardBriefBn: '"সন্ধ্যায় বাসায় ঈদের দাওয়াতে সবাই আসছে।"',
+          hardRule: 'unique_tones',
+          hardRuleEn: 'Rule: No two items of the same tone',
+          hardRuleBn: 'নিয়ম: একই রঙের টোন দুইবার নয়'
+        },
+        {
+          id: 'adda',
+          occasionEn: 'Weekend Adda',
+          occasionBn: 'উইকএন্ড আড্ডা',
+          tag: 'weekend',
+          tone: 'neutral',
+          easyBriefEn: 'Tag: Weekend',
+          easyBriefBn: 'ট্যাগ: উইকএন্ড',
+          medBriefEn: 'Weekend, neutral tones',
+          medBriefBn: 'উইকএন্ড, নিউট্রাল রঙ',
+          hardBriefEn: '"Catching up with old friends at a Dhanmondi cafe."',
+          hardBriefBn: '"ধানমন্ডির ক্যাফেতে বন্ধুদের সাথে বিকেলের আড্ডা।"',
+          hardRule: 'has_dark',
+          hardRuleEn: 'Rule: Include at least 1 dark tone item',
+          hardRuleBn: 'নিয়ম: অন্তত ১টি গাঢ় টোনের পোশাক রাখুন'
+        },
+        {
+          id: 'gym',
+          occasionEn: 'Gym Then Chai',
+          occasionBn: 'জিম শেষে চা',
+          tag: 'sporty',
+          tone: 'neutral',
+          easyBriefEn: 'Tag: Sporty',
+          easyBriefBn: 'ট্যাগ: স্পোর্টি',
+          medBriefEn: 'Sporty, neutral tones',
+          medBriefBn: 'স্পোর্টি, নিউট্রাল রঙ',
+          hardBriefEn: '"Morning workout session followed by roadside tea."',
+          hardBriefBn: '"সকালের জিম শেষ করেই টংয়ে চা খেতে বসব।"' ,
+          hardRule: 'unique_tones',
+          hardRuleEn: 'Rule: No two items of the same tone',
+          hardRuleBn: 'নিয়ম: একই রঙের টোন দুইবার নয়'
+        },
+        {
+          id: 'dinner',
+          occasionEn: 'Family Dinner',
+          occasionBn: 'ফ্যামিলি ডিনার',
+          tag: 'formal',
+          tone: 'light',
+          easyBriefEn: 'Tag: Formal',
+          easyBriefBn: 'ট্যাগ: ফরমাল',
+          medBriefEn: 'Formal, light tones',
+          medBriefBn: 'ফরমাল, হালকা রঙ',
+          hardBriefEn: '"Meeting my in-laws on a warm Dhaka evening."',
+          hardBriefBn: '"গরমের সন্ধ্যায় শ্বশুরবাড়িতে বিশেষ ডিনারের দাওয়াত।"',
+          hardRule: 'has_light',
+          hardRuleEn: 'Rule: Include at least 1 light tone item',
+          hardRuleBn: 'নিয়ম: অন্তত ১টি হালকা টোনের পোশাক রাখুন'
+        },
+        {
+          id: 'rooftop',
+          occasionEn: 'Rooftop Evening',
+          occasionBn: 'রুফটপ সন্ধ্যা',
+          tag: 'weekend',
+          tone: 'dark',
+          easyBriefEn: 'Tag: Weekend',
+          easyBriefBn: 'ট্যাগ: উইকএন্ড',
+          medBriefEn: 'Weekend, dark tones',
+          medBriefBn: 'উইকএন্ড, গাঢ় রঙ',
+          hardBriefEn: '"Breezy night out on a Banani rooftop lounge."',
+          hardBriefBn: '"বনানীর রুফটপে রাতের হাওয়ায় ক্যাজুয়াল গেটআপ।"',
+          hardRule: 'has_dark',
+          hardRuleEn: 'Rule: Include at least 1 dark tone item',
+          hardRuleBn: 'নিয়ম: অন্তত ১টি গাঢ় টোনের পোশাক রাখুন'
+        },
+        {
+          id: 'campus',
+          occasionEn: 'Campus Day',
+          occasionBn: 'ক্যাম্পাস ডে',
+          tag: 'casual',
+          tone: 'light',
+          easyBriefEn: 'Tag: Casual',
+          easyBriefBn: 'ট্যাগ: ক্যাজুয়াল',
+          medBriefEn: 'Casual, light tones',
+          medBriefBn: 'ক্যাজুয়াল, হালকা রঙ',
+          hardBriefEn: '"Full day of lectures and walking around campus."',
+          hardBriefBn: '"সারাদিন ক্লাস আর ক্যাম্পাসে ঘোরাঘুরির জন্য আরামদায়ক লুক।"',
+          hardRule: 'has_light',
+          hardRuleEn: 'Rule: Include at least 1 light tone item',
+          hardRuleBn: 'নিয়ম: অন্তত ১টি হালকা টোনের পোশাক রাখুন'
+        }
+      ];
+
+      const StyleBriefGame = {
+        diff: 'easy',
+        cfg: null,
+        customers: [],
+        custIdx: 0,
+        score: 0,
+        combo: 0,
+        lives: null,
+        hintsLeft: 0,
+        timeLeft: 30,
+        timerId: null,
+        placed: {},
+        trayItems: [],
+        lastOrderSignature: '',
+        dragState: null,
+        keyHandler: null,
+
+        init(difficulty) {
+          this.diff = difficulty;
+          this.cfg = Config.styleBrief[difficulty];
+          this.score = 0;
+          this.combo = 0;
+          this.custIdx = 0;
+          this.lives = this.cfg.lives;
+          this.hintsLeft = this.cfg.hints;
+
+          // Shuffle customer briefs ensuring never the exact same order twice in a row
+          let pool = Utils.shuffle(StyleBriefPool);
+          if (pool.map((c) => c.id).join(',') === this.lastOrderSignature) {
+            pool.reverse();
+          }
+          this.lastOrderSignature = pool.map((c) => c.id).join(',');
+          this.customers = pool.slice(0, this.cfg.customers);
+
+          this.bindControls();
+          this.loadCustomer();
+          this.syncHUD();
+        },
+
+        bindControls() {
+          const hintBtn = document.getElementById('btn-sb-hint');
+          const submitBtn = document.getElementById('btn-sb-submit');
+          hintBtn.onclick = () => this.useHint();
+          submitBtn.onclick = () => this.submitLook();
+
+          this.keyHandler = (e) => {
+            if (GameManager.currentGameId !== 'styleBrief' || GameManager.isPaused || GameManager.inCountdown) return;
+            if (e.key === 's' || e.key === 'S') {
+              e.preventDefault();
+              this.submitLook();
+            } else if (e.key === 'h' || e.key === 'H') {
+              e.preventDefault();
+              this.useHint();
+            }
+          };
+          window.addEventListener('keydown', this.keyHandler);
+        },
+
+        loadCustomer() {
+          const cust = this.customers[this.custIdx];
+          this.timeLeft = this.cfg.timePerCustomer;
+          this.placed = {};
+          this.cfg.slots.forEach((s) => { this.placed[s] = null; });
+
+          // Build tray with guaranteed valid items for each slot
+          const tray = [];
+          const toneOrder = ['light', 'dark', 'neutral'];
+          this.cfg.slots.forEach((slotName, sIdx) => {
+            const allForSlot = Garments.filter((g) => g.slot === slotName);
+            const matching = allForSlot.filter((g) => g.tags.includes(cust.tag));
+            let chosenValid = matching[0] || allForSlot[0];
+            if (this.diff === 'medium') {
+              const toneMatch = matching.find((g) => g.tone === cust.tone);
+              if (toneMatch) chosenValid = toneMatch;
+            } else if (this.diff === 'hard') {
+              const preferredTone = toneOrder[sIdx % toneOrder.length];
+              const toneMatch = matching.find((g) => g.tone === preferredTone);
+              if (toneMatch) chosenValid = toneMatch;
+            }
+            tray.push(chosenValid);
+
+            const others = Utils.shuffle(allForSlot.filter((g) => g.id !== chosenValid.id));
+            const extraCount = Math.min(this.cfg.choicesPerSlot - 1, others.length);
+            for (let i = 0; i < extraCount; i++) {
+              tray.push(others[i]);
+            }
+          });
+
+          this.trayItems = Utils.shuffle(tray);
+          this.renderCustomerView();
+          this.syncHUD();
+        },
+
+        isItemMatchingBrief(item, cust) {
+          if (!item) return false;
+          const tagOk = item.tags.includes(cust.tag);
+          if (this.diff === 'easy') return tagOk;
+          if (this.diff === 'medium') {
+            return tagOk && (item.tone === cust.tone || item.tone === 'neutral');
+          }
+          return tagOk;
+        },
+
+        checkHardExtraRule(cust) {
+          if (this.diff !== 'hard') return true;
+          const items = this.cfg.slots.map((s) => this.placed[s]).filter(Boolean);
+          if (items.length < this.cfg.slots.length) return false;
+          if (cust.hardRule === 'has_light') {
+            return items.some((i) => i.tone === 'light');
+          }
+          if (cust.hardRule === 'has_dark') {
+            return items.some((i) => i.tone === 'dark');
+          }
+          // For unique_tones, require at least 2 distinct tones across the outfit
+          const tones = new Set(items.map((i) => i.tone));
+          return tones.size >= 2;
+        },
+
+        renderCustomerView() {
+          const cust = this.customers[this.custIdx];
+          const isBn = i18n.lang === 'bn';
+
+          document.getElementById('sb-avatar').innerHTML = `<svg width="28" height="28" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="12" r="6" fill="#1C1C1C"/><path d="M7 31c0-6 5-10 11-10s11 4 11 10" stroke="#1C1C1C" stroke-width="2.5" stroke-linecap="round"/></svg>`;
+          document.getElementById('sb-occasion').textContent = isBn ? cust.occasionBn : cust.occasionEn;
+
+          let briefText = isBn ? cust.easyBriefBn : cust.easyBriefEn;
+          if (this.diff === 'medium') briefText = isBn ? cust.medBriefBn : cust.medBriefEn;
+          if (this.diff === 'hard') briefText = isBn ? cust.hardBriefBn : cust.hardBriefEn;
+          document.getElementById('sb-speech').textContent = briefText;
+
+          const ruleEl = document.getElementById('sb-extra-rule');
+          if (this.diff === 'hard') {
+            ruleEl.textContent = isBn ? cust.hardRuleBn : cust.hardRuleEn;
+          } else {
+            ruleEl.textContent = '';
+          }
+
+          const hintBtn = document.getElementById('btn-sb-hint');
+          document.getElementById('sb-hint-count').textContent = `(${this.hintsLeft})`;
+          hintBtn.disabled = this.hintsLeft <= 0;
+
+          this.renderMannequinAndSlots();
+          this.renderTray();
+        },
+
+        renderMannequinAndSlots() {
+          const topItem = this.placed.top;
+          const botItem = this.placed.bottom;
+          const footItem = this.placed.footwear;
+          const accItem = this.placed.accessory;
+
+          document.getElementById('sb-mannequin-svg').innerHTML = `
+            <svg viewBox="0 0 120 220" fill="none" aria-label="Mannequin">
+              <!-- Stand & Base -->
+              <line x1="60" y1="185" x2="60" y2="212" stroke="#1C1C1C" stroke-width="3"/>
+              <path d="M40 212h40" stroke="#1C1C1C" stroke-width="4" stroke-linecap="round"/>
+              <!-- Head -->
+              <circle cx="60" cy="24" r="13" fill="#F4F4F2" stroke="#1C1C1C" stroke-width="2.5"/>
+              ${accItem ? `<rect x="48" y="19" width="24" height="7" rx="3" fill="#FF4D2E"/>` : ''}
+              <!-- Torso Silhouette -->
+              <path d="M40 44h40l5 56H35l5-56z" fill="${topItem ? topItem.fill : '#E6E6E3'}" stroke="#1C1C1C" stroke-width="2.5" stroke-linejoin="round"/>
+              <!-- Legs Silhouette -->
+              <path d="M39 102h42l-3 70H63l-3-45-3 45H42l-3-70z" fill="${botItem ? botItem.fill : '#F4F4F2'}" stroke="#1C1C1C" stroke-width="2.5" stroke-linejoin="round"/>
+              <!-- Footwear Silhouette -->
+              <rect x="38" y="175" width="18" height="10" rx="4" fill="${footItem ? footItem.fill : '#9A9A9A'}" stroke="#1C1C1C" stroke-width="2"/>
+              <rect x="64" y="175" width="18" height="10" rx="4" fill="${footItem ? footItem.fill : '#9A9A9A'}" stroke="#1C1C1C" stroke-width="2"/>
+            </svg>
+          `;
+
+          const rail = document.getElementById('sb-slot-rail');
+          rail.innerHTML = '';
+          this.cfg.slots.forEach((slotName) => {
+            const item = this.placed[slotName];
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'sb-slot' + (item ? ' filled' : '');
+            btn.dataset.slot = slotName;
+            const slotLabel = i18n.t('slot_' + slotName);
+            const itemName = item ? (i18n.lang === 'bn' ? item.nameBn : item.nameEn) : slotLabel;
+            btn.setAttribute('aria-label', slotLabel + ': ' + itemName);
+            btn.innerHTML = item
+              ? `${renderGarmentSVG(item)}<span class="sb-slot-text">${itemName}</span>`
+              : `<span class="sb-slot-text">+ ${slotLabel}</span>`;
+
+            btn.addEventListener('click', () => {
+              if (this.placed[slotName]) {
+                AudioSynth.play('tap');
+                this.placed[slotName] = null;
+                this.renderMannequinAndSlots();
+                this.renderTray();
+              }
+            });
+
+            rail.appendChild(btn);
+          });
+        },
+
+        renderTray() {
+          const grid = document.getElementById('sb-tray-grid');
+          grid.innerHTML = '';
+          const isBn = i18n.lang === 'bn';
+
+          this.trayItems.forEach((item) => {
+            const isSelected = this.placed[item.slot] && this.placed[item.slot].id === item.id;
+            const card = document.createElement('button');
+            card.type = 'button';
+            card.className = 'sb-item-card' + (isSelected ? ' selected' : '') + (item._hinted ? ' hinted' : '');
+            card.dataset.itemId = item.id;
+            const label = isBn ? item.nameBn : item.nameEn;
+            const toneLabel = i18n.t('tone_' + item.tone);
+            card.setAttribute('aria-label', `${label} (${toneLabel})`);
+            card.innerHTML = `
+              ${renderGarmentSVG(item)}
+              <span class="sb-item-name">${label}</span>
+              <span class="sb-item-tone">${toneLabel}</span>
+            `;
+
+            // Tap or Enter places/removes item
+            card.addEventListener('click', () => {
+              AudioSynth.play('tap');
+              if (this.placed[item.slot] && this.placed[item.slot].id === item.id) {
+                this.placed[item.slot] = null;
+              } else {
+                this.placed[item.slot] = item;
+              }
+              this.renderMannequinAndSlots();
+              this.renderTray();
+            });
+
+            // Pointer drag support
+            card.addEventListener('pointerdown', (e) => {
+              if (e.pointerType === 'mouse' && e.button !== 0) return;
+              const startX = e.clientX;
+              const startY = e.clientY;
+              let dragging = false;
+              let ghost = null;
+
+              const onMove = (ev) => {
+                const dx = ev.clientX - startX;
+                const dy = ev.clientY - startY;
+                if (!dragging && Math.hypot(dx, dy) > 10) {
+                  dragging = true;
+                  ghost = document.createElement('div');
+                  ghost.className = 'drag-ghost';
+                  ghost.innerHTML = renderGarmentSVG(item);
+                  document.body.appendChild(ghost);
+                }
+                if (dragging && ghost) {
+                  ghost.style.left = ev.clientX + 'px';
+                  ghost.style.top = ev.clientY + 'px';
+                }
+              };
+
+              const onUp = (ev) => {
+                window.removeEventListener('pointermove', onMove);
+                window.removeEventListener('pointerup', onUp);
+                if (ghost) ghost.remove();
+                if (dragging) {
+                  const targetSlot = document.querySelector(`.sb-slot[data-slot="${item.slot}"]`);
+                  if (targetSlot) {
+                    const rect = targetSlot.getBoundingClientRect();
+                    if (ev.clientX >= rect.left - 30 && ev.clientX <= rect.right + 30 && ev.clientY >= rect.top - 30 && ev.clientY <= rect.bottom + 30) {
+                      AudioSynth.play('tap');
+                      this.placed[item.slot] = item;
+                      this.renderMannequinAndSlots();
+                      this.renderTray();
+                    }
+                  }
+                }
+              };
+
+              window.addEventListener('pointermove', onMove);
+              window.addEventListener('pointerup', onUp);
+            });
+
+            grid.appendChild(card);
+          });
+        },
+
+        useHint() {
+          if (this.hintsLeft <= 0) return;
+          const cust = this.customers[this.custIdx];
+          const candidate = this.trayItems.find((item) => {
+            const already = this.placed[item.slot] && this.placed[item.slot].id === item.id;
+            return !already && !item._hinted && this.isItemMatchingBrief(item, cust);
+          });
+          if (!candidate) return;
+          this.hintsLeft--;
+          this.score = Math.max(0, this.score - 50);
+          candidate._hinted = true;
+          this.placed[candidate.slot] = candidate;
+          AudioSynth.play('pickup');
+          this.renderCustomerView();
+          this.syncHUD();
+        },
+
+        submitLook() {
+          const cust = this.customers[this.custIdx];
+          let matchingCount = 0;
+          this.cfg.slots.forEach((slotName) => {
+            if (this.isItemMatchingBrief(this.placed[slotName], cust)) {
+              matchingCount++;
+            }
+          });
+          const extraPassed = this.checkHardExtraRule(cust);
+          const isPerfect = matchingCount === this.cfg.slots.length && extraPassed;
+
+          if (isPerfect) {
+            this.combo = Math.min(4, this.combo + 1);
+            const pts = matchingCount * 100 + 50 + Math.floor(this.timeLeft) * 5 + this.combo * 25;
+            this.score += pts;
+            AudioSynth.play(this.combo > 1 ? 'combo' : 'correct');
+            UI.showToast(i18n.t('perfectLookToast'), 'good');
+          } else {
+            this.combo = 0;
+            const pts = matchingCount * 100 + (matchingCount > 0 ? Math.floor(this.timeLeft) * 2 : 0);
+            this.score += pts;
+
+            // Check life penalty on Medium (<2 matching slots) or Hard (not perfect)
+            const failedThreshold = (this.diff === 'medium' && matchingCount < 2) || (this.diff === 'hard' && !isPerfect);
+            if (failedThreshold && this.lives !== null) {
+              this.lives--;
+              AudioSynth.play('wrong');
+              UI.shakeStage();
+              UI.showToast(i18n.t('wrongLookToast'), 'bad');
+              if (this.lives <= 0) {
+                this.syncHUD();
+                GameManager.finishGame({ won: false, score: this.score });
+                return;
+              }
+            } else {
+              AudioSynth.play(matchingCount > 0 ? 'correct' : 'wrong');
+              UI.showToast(matchingCount > 0 ? i18n.t('goodLookToast') : i18n.t('wrongLookToast'), matchingCount > 0 ? 'good' : 'bad');
+            }
+          }
+
+          this.nextCustomer();
+        },
+
+        handleTimeout() {
+          this.combo = 0;
+          AudioSynth.play('wrong');
+          UI.shakeStage();
+          UI.showToast(i18n.t('wrongLookToast'), 'bad');
+          if (this.lives !== null) {
+            this.lives--;
+            if (this.lives <= 0) {
+              this.syncHUD();
+              GameManager.finishGame({ won: false, score: this.score });
+              return;
+            }
+          }
+          this.nextCustomer();
+        },
+
+        nextCustomer() {
+          this.custIdx++;
+          if (this.custIdx >= this.customers.length) {
+            this.syncHUD();
+            GameManager.finishGame({ won: true, score: this.score });
+            return;
+          }
+          this.loadCustomer();
+        },
+
+        syncHUD() {
+          const statusStr = this.lives !== null
+            ? `♥ ${this.lives} · ${this.custIdx + 1}/${this.customers.length}`
+            : `${this.custIdx + 1}/${this.customers.length}`;
+          UI.updateHUD({
+            score: this.score,
+            combo: this.combo,
+            timeRemaining: this.timeLeft,
+            totalTime: this.cfg.timePerCustomer,
+            statusLabelKey: this.lives !== null ? 'hudLives' : 'hudProgress',
+            statusValue: statusStr
+          });
+        },
+
+        start() {
+          this.resume();
+        },
+
+        pause() {
+          if (this.timerId) {
+            clearInterval(this.timerId);
+            this.timerId = null;
+          }
+        },
+
+        resume() {
+          this.pause();
+          this.timerId = setInterval(() => {
+            this.timeLeft -= 0.25;
+            if (this.timeLeft <= 0) {
+              this.timeLeft = 0;
+              this.syncHUD();
+              this.handleTimeout();
+            } else {
+              this.syncHUD();
+            }
+          }, 250);
+        },
+
+        onLangChange() {
+          this.renderCustomerView();
+          this.syncHUD();
+        },
+
+        destroy() {
+          this.pause();
+          if (this.keyHandler) {
+            window.removeEventListener('keydown', this.keyHandler);
+            this.keyHandler = null;
+          }
+          this.trayItems.forEach((i) => { delete i._hinted; });
+        }
+      };
+
+      /* ==========================================
+         10. GAME 2 CONTROLLER — "TAG MATCH"
+         ========================================== */
+      const TagMatchGame = {
+        diff: 'easy',
+        cfg: null,
+        deck: [],
+        flippedIndices: [],
+        matchedPairIds: new Set(),
+        score: 0,
+        streak: 0,
+        moves: 0,
+        mismatches: 0,
+        timeLeft: 90,
+        locked: false,
+        timerId: null,
+        peekTimeout: null,
+        flipTimeout: null,
+
+        init(difficulty) {
+          this.diff = difficulty;
+          this.cfg = Config.tagMatch[difficulty];
+          this.score = 0;
+          this.streak = 0;
+          this.moves = 0;
+          this.mismatches = 0;
+          this.timeLeft = this.cfg.time;
+          this.flippedIndices = [];
+          this.matchedPairIds = new Set();
+          this.locked = false;
+
+          const chosenGarments = Utils.shuffle(Garments).slice(0, this.cfg.pairs);
+          const pairs = [];
+          chosenGarments.forEach((g) => {
+            pairs.push({ uid: g.id + '_a', pairId: g.id, item: g });
+            pairs.push({ uid: g.id + '_b', pairId: g.id, item: g });
+          });
+          this.deck = Utils.shuffle(pairs);
+
+          this.renderGrid();
+          this.syncHUD();
+        },
+
+        renderGrid() {
+          const grid = document.getElementById('tm-grid');
+          grid.className = 'tm-grid grid-' + this.diff;
+          grid.innerHTML = '';
+
+          this.deck.forEach((cardObj, idx) => {
+            const isMatched = this.matchedPairIds.has(cardObj.pairId);
+            const isFlipped = this.flippedIndices.includes(idx);
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'tm-card' + (isFlipped ? ' flipped' : '') + (isMatched ? ' matched' : '');
+            btn.dataset.index = String(idx);
+            const itemName = i18n.lang === 'bn' ? cardObj.item.nameBn : cardObj.item.nameEn;
+            btn.setAttribute('aria-label', isMatched || isFlipped ? itemName : `Card ${idx + 1}`);
+
+            btn.innerHTML = `
+              <div class="tm-face tm-back">
+                <img src="${LOGO_URI}" alt="rman" />
+              </div>
+              <div class="tm-face tm-front">
+                <svg class="tm-hangtag" viewBox="0 0 16 22" fill="none">
+                  <path d="M3 5l5-4 5 4v15H3V5z" stroke="#1C1C1C" stroke-width="1.5"/>
+                  <circle cx="8" cy="6" r="1.2" fill="#1C1C1C"/>
+                </svg>
+                <div class="garment-svg">${renderGarmentSVG(cardObj.item)}</div>
+                <span style="font-size:0.62rem; font-weight:600; color:var(--ink);">${itemName}</span>
+                <div class="tm-sold-stamp"><span>${i18n.t('soldText')}</span></div>
+              </div>
+            `;
+
+            btn.addEventListener('click', () => this.onCardClick(idx));
+            grid.appendChild(btn);
+          });
+        },
+
+        onCardClick(idx) {
+          if (this.locked || GameManager.isPaused || GameManager.inCountdown) return;
+          const cardObj = this.deck[idx];
+          if (!cardObj || this.matchedPairIds.has(cardObj.pairId) || this.flippedIndices.includes(idx)) return;
+          if (this.flippedIndices.length >= 2) return;
+
+          AudioSynth.play('tap');
+          this.flippedIndices.push(idx);
+          this.updateCardDOM(idx);
+
+          if (this.flippedIndices.length === 2) {
+            this.moves++;
+            this.locked = true;
+            const [i1, i2] = this.flippedIndices;
+            const c1 = this.deck[i1];
+            const c2 = this.deck[i2];
+
+            if (c1.pairId === c2.pairId) {
+              // Match!
+              this.matchedPairIds.add(c1.pairId);
+              this.streak = Math.min(4, this.streak + 1);
+              this.score += 100 * this.streak;
+              this.flippedIndices = [];
+              this.locked = false;
+
+              AudioSynth.play('stamp');
+              if (this.streak > 1) AudioSynth.play('combo');
+              this.updateCardDOM(i1);
+              this.updateCardDOM(i2);
+              this.syncHUD();
+
+              if (this.matchedPairIds.size >= this.cfg.pairs) {
+                const timeBonus = Math.floor(this.timeLeft) * 3;
+                this.score += timeBonus;
+                this.syncHUD();
+                setTimeout(() => {
+                  if (GameManager.currentGameId === 'tagMatch') {
+                    GameManager.finishGame({ won: true, score: this.score });
+                  }
+                }, 380);
+                return;
+              }
+
+              if (this.cfg.moveCap && this.moves >= this.cfg.moveCap) {
+                GameManager.finishGame({ won: false, score: this.score });
+              }
+            } else {
+              // Mismatch
+              this.streak = 0;
+              this.mismatches++;
+              this.score = Math.max(0, this.score - 10);
+              this.syncHUD();
+
+              this.flipTimeout = setTimeout(() => {
+                AudioSynth.play('wrong');
+                this.flippedIndices = [];
+                this.locked = false;
+                this.updateCardDOM(i1);
+                this.updateCardDOM(i2);
+
+                if (this.cfg.moveCap && this.moves >= this.cfg.moveCap) {
+                  GameManager.finishGame({ won: false, score: this.score });
+                  return;
+                }
+
+                // Hard Mode Restock Shuffle every 5 mismatches
+                if (this.cfg.restockEvery && this.mismatches % this.cfg.restockEvery === 0) {
+                  this.triggerRestockShuffle();
+                }
+              }, this.cfg.flipBackMs);
+            }
+          }
+        },
+
+        triggerRestockShuffle() {
+          UI.showToast(i18n.t('restockToast'), 'bad');
+          AudioSynth.play('whoosh');
+          const unmatchedIndices = [];
+          const unmatchedCards = [];
+          this.deck.forEach((c, idx) => {
+            if (!this.matchedPairIds.has(c.pairId)) {
+              unmatchedIndices.push(idx);
+              unmatchedCards.push(c);
+            }
+          });
+          const shuffled = Utils.shuffle(unmatchedCards);
+          unmatchedIndices.forEach((deckIdx, i) => {
+            this.deck[deckIdx] = shuffled[i];
+          });
+          this.renderGrid();
+          document.querySelectorAll('#tm-grid .tm-card:not(.matched)').forEach((el) => {
+            el.classList.add('reshuffling');
+          });
+        },
+
+        updateCardDOM(idx) {
+          const el = document.querySelector(`#tm-grid .tm-card[data-index="${idx}"]`);
+          if (!el) return;
+          const cardObj = this.deck[idx];
+          const isMatched = this.matchedPairIds.has(cardObj.pairId);
+          const isFlipped = this.flippedIndices.includes(idx);
+          el.classList.toggle('flipped', isFlipped);
+          el.classList.toggle('matched', isMatched);
+        },
+
+        syncHUD() {
+          const movesInfo = this.cfg.moveCap
+            ? `${this.matchedPairIds.size}/${this.cfg.pairs} · ${this.moves}/${this.cfg.moveCap}`
+            : `${this.matchedPairIds.size}/${this.cfg.pairs}`;
+          UI.updateHUD({
+            score: this.score,
+            combo: this.streak,
+            timeRemaining: this.timeLeft,
+            totalTime: this.cfg.time,
+            statusLabelKey: this.cfg.moveCap ? 'hudMoves' : 'hudProgress',
+            statusValue: movesInfo
+          });
+        },
+
+        start() {
+          if (this.cfg.peekMs > 0) {
+            this.locked = true;
+            document.querySelectorAll('#tm-grid .tm-card').forEach((el) => el.classList.add('flipped'));
+            this.peekTimeout = setTimeout(() => {
+              document.querySelectorAll('#tm-grid .tm-card:not(.matched)').forEach((el) => el.classList.remove('flipped'));
+              this.locked = false;
+              this.resume();
+            }, this.cfg.peekMs);
+          } else {
+            this.resume();
+          }
+        },
+
+        pause() {
+          if (this.timerId) {
+            clearInterval(this.timerId);
+            this.timerId = null;
+          }
+          if (this.peekTimeout) {
+            clearTimeout(this.peekTimeout);
+            this.peekTimeout = null;
+          }
+          if (this.flipTimeout) {
+            clearTimeout(this.flipTimeout);
+            this.flipTimeout = null;
+            this.flippedIndices = [];
+            this.locked = false;
+            this.renderGrid();
+          }
+        },
+
+        resume() {
+          if (this.timerId) clearInterval(this.timerId);
+          this.timerId = setInterval(() => {
+            this.timeLeft -= 0.25;
+            if (this.timeLeft <= 0) {
+              this.timeLeft = 0;
+              this.syncHUD();
+              GameManager.finishGame({ won: false, score: this.score });
+            } else {
+              this.syncHUD();
+            }
+          }, 250);
+        },
+
+        onLangChange() {
+          this.renderGrid();
+          this.syncHUD();
+        },
+
+        destroy() {
+          this.pause();
+        }
+      };
+
+      /* ==========================================
+         11. GAME 3 CONTROLLER — "DHAKA DASH" (Canvas)
+         ========================================== */
+      const DhakaDashGame = {
+        diff: 'easy',
+        cfg: null,
+        canvas: null,
+        ctx: null,
+        logoImg: null,
+        rafId: null,
+        lastTs: 0,
+        score: 0,
+        parcels: 0,
+        hearts: 3,
+        timeLeft: 75,
+        elapsed: 0,
+        roadOffset: 0,
+        skylineOffset: 0,
+        riderLane: 1, // 0, 1, 2
+        riderVisualX: 0,
+        jumpTimer: 0,
+        jumpDuration: 0.58,
+        invincibleTimer: 0,
+        slowTimer: 0,
+        spawnClock: 0,
+        parcelClock: 0,
+        obstacles: [],
+        collectibles: [],
+        keyHandler: null,
+        touchStartX: 0,
+        touchStartY: 0,
+
+        init(difficulty) {
+          this.diff = difficulty;
+          this.cfg = Config.dhakaDash[difficulty];
+          this.canvas = document.getElementById('dd-canvas');
+          this.ctx = this.canvas.getContext('2d');
+
+          if (!this.logoImg) {
+            this.logoImg = new Image();
+            this.logoImg.src = LOGO_URI;
+          }
+
+          this.score = 0;
+          this.parcels = 0;
+          this.hearts = this.cfg.hearts;
+          this.timeLeft = this.cfg.time;
+          this.elapsed = 0;
+          this.roadOffset = 0;
+          this.skylineOffset = 0;
+          this.riderLane = 1;
+          this.riderVisualX = this.getLaneX(1);
+          this.jumpTimer = 0;
+          this.invincibleTimer = 0;
+          this.slowTimer = 0;
+          this.spawnClock = 0.5;
+          this.parcelClock = 0.3;
+          this.obstacles = [];
+          this.collectibles = [];
+
+          this.bindControls();
+          this.renderFrame();
+          this.syncHUD();
+        },
+
+        getLaneX(laneIndex) {
+          const w = this.canvas.width;
+          const roadLeft = w * 0.16;
+          const roadWidth = w * 0.68;
+          const laneW = roadWidth / 3;
+          return roadLeft + laneW * (laneIndex + 0.5);
+        },
+
+        moveLane(delta) {
+          if (GameManager.isPaused || GameManager.inCountdown) return;
+          const next = Utils.clamp(this.riderLane + delta, 0, 2);
+          if (next !== this.riderLane) {
+            this.riderLane = next;
+            AudioSynth.play('whoosh');
+          }
+        },
+
+        jump() {
+          if (GameManager.isPaused || GameManager.inCountdown) return;
+          if (this.jumpTimer <= 0) {
+            this.jumpTimer = this.jumpDuration;
+            AudioSynth.play('whoosh');
+          }
+        },
+
+        bindControls() {
+          document.getElementById('btn-dd-left').onclick = () => this.moveLane(-1);
+          document.getElementById('btn-dd-right').onclick = () => this.moveLane(1);
+          document.getElementById('btn-dd-jump').onclick = () => this.jump();
+
+          this.keyHandler = (e) => {
+            if (GameManager.currentGameId !== 'dhakaDash' || GameManager.isPaused || GameManager.inCountdown) return;
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+              e.preventDefault();
+              this.moveLane(-1);
+            } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+              e.preventDefault();
+              this.moveLane(1);
+            } else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W' || e.key === ' ') {
+              e.preventDefault();
+              this.jump();
+            }
+          };
+          window.addEventListener('keydown', this.keyHandler);
+
+          const wrap = document.getElementById('dd-canvas-wrap');
+          wrap.ontouchstart = (e) => {
+            if (!e.touches[0]) return;
+            this.touchStartX = e.touches[0].clientX;
+            this.touchStartY = e.touches[0].clientY;
+          };
+          wrap.ontouchend = (e) => {
+            if (!e.changedTouches[0]) return;
+            const dx = e.changedTouches[0].clientX - this.touchStartX;
+            const dy = e.changedTouches[0].clientY - this.touchStartY;
+            if (Math.abs(dx) > 26 || Math.abs(dy) > 26) {
+              if (Math.abs(dx) > Math.abs(dy)) {
+                this.moveLane(dx > 0 ? 1 : -1);
+              } else if (dy < -24) {
+                this.jump();
+              }
+            }
+          };
+        },
+
+        spawnObstacleWave() {
+          // Always guarantee at least 1 passable lane out of 3
+          const lanes = Utils.shuffle([0, 1, 2]);
+          const isRushWall = this.diff === 'hard' && Math.random() < 0.45;
+          const count = isRushWall ? 2 : 1;
+
+          for (let i = 0; i < count; i++) {
+            const lane = lanes[i];
+            let kind = 'rickshaw';
+            const r = Math.random();
+            if (this.diff === 'easy') {
+              kind = r < 0.45 ? 'pothole' : r < 0.8 ? 'rickshaw' : 'car';
+            } else if (this.diff === 'medium') {
+              kind = r < 0.35 ? 'pothole' : r < 0.65 ? 'rickshaw' : r < 0.88 ? 'car' : 'bus';
+            } else {
+              kind = r < 0.25 ? 'pothole' : r < 0.45 ? 'puddle' : r < 0.7 ? 'rickshaw' : r < 0.88 ? 'car' : 'bus';
+            }
+
+            const lowObstacle = kind === 'pothole' || kind === 'puddle';
+            const canSwitchLane = !lowObstacle && !isRushWall && this.diff !== 'easy' && Math.random() < 0.3;
+            const targetLane = canSwitchLane ? lanes[2] : lane;
+
+            this.obstacles.push({
+              lane,
+              targetLane,
+              visualX: this.getLaneX(lane),
+              y: -60,
+              kind,
+              low: lowObstacle,
+              h: kind === 'bus' ? 68 : kind === 'car' ? 54 : lowObstacle ? 28 : 48,
+              w: lowObstacle ? 42 : 38,
+              nearMissed: false,
+              switched: false
+            });
+          }
+        },
+
+        spawnCollectible() {
+          // Pick a lane that isn't currently blocked near the top
+          const busyLanes = new Set(
+            this.obstacles.filter((o) => o.y < 110).map((o) => o.lane)
+          );
+          const freeLanes = [0, 1, 2].filter((l) => !busyLanes.has(l));
+          const lane = freeLanes.length > 0 ? Utils.pick(freeLanes) : Utils.randInt(0, 2);
+          const isParcel = Math.random() < 0.72;
+          this.collectibles.push({
+            lane,
+            x: this.getLaneX(lane),
+            y: -40,
+            kind: isParcel ? 'parcel' : 'coin'
+          });
+        },
+
+        update(dt) {
+          this.elapsed += dt;
+          this.timeLeft -= dt;
+          if (this.timeLeft <= 0) {
+            this.timeLeft = 0;
+            this.syncHUD();
+            GameManager.finishGame({ won: this.parcels >= this.cfg.goalParcels, score: this.score });
+            return;
+          }
+
+          const progress = Utils.clamp(this.elapsed / this.cfg.time, 0, 1);
+          let speed = this.cfg.speedStart + (this.cfg.speedEnd - this.cfg.speedStart) * progress;
+          if (this.slowTimer > 0) {
+            this.slowTimer -= dt;
+            speed *= 0.62;
+          }
+
+          // Distance score trickle
+          this.score += dt * 2.5;
+
+          this.roadOffset = (this.roadOffset + speed * dt) % 64;
+          this.skylineOffset = (this.skylineOffset + speed * 0.25 * dt) % 120;
+
+          if (this.jumpTimer > 0) {
+            this.jumpTimer = Math.max(0, this.jumpTimer - dt);
+          }
+          if (this.invincibleTimer > 0) {
+            this.invincibleTimer = Math.max(0, this.invincibleTimer - dt);
+          }
+
+          const targetX = this.getLaneX(this.riderLane);
+          this.riderVisualX += (targetX - this.riderVisualX) * Math.min(1, dt * 16);
+
+          // Spawners
+          this.spawnClock -= dt;
+          if (this.spawnClock <= 0) {
+            this.spawnObstacleWave();
+            this.spawnClock = this.cfg.spawnInterval * (0.88 + Math.random() * 0.24);
+          }
+
+          this.parcelClock -= dt;
+          if (this.parcelClock <= 0) {
+            this.spawnCollectible();
+            this.parcelClock = 1.35;
+          }
+
+          const riderY = this.canvas.height - 96;
+          const isJumping = this.jumpTimer > 0;
+
+          // Update obstacles
+          for (let i = this.obstacles.length - 1; i >= 0; i--) {
+            const o = this.obstacles[i];
+            const ownSpeed = o.low ? speed : speed * 0.82;
+            o.y += ownSpeed * dt;
+
+            if (o.targetLane !== o.lane && o.y > 90 && !o.switched) {
+              o.lane = o.targetLane;
+              o.switched = true;
+            }
+            const oTargetX = this.getLaneX(o.lane);
+            o.visualX += (oTargetX - o.visualX) * Math.min(1, dt * 8);
+
+            // Collision check
+            const dy = Math.abs(o.y - riderY);
+            const dx = Math.abs(o.visualX - this.riderVisualX);
+            const hitY = (o.h * 0.5 + 20) * this.cfg.hitboxScale;
+            const hitX = 28 * this.cfg.hitboxScale;
+
+            if (dy < hitY && dx < hitX) {
+              if (o.low && isJumping) {
+                // Jumped cleanly over pothole/puddle!
+              } else if (o.kind === 'puddle') {
+                this.slowTimer = 1.4;
+                this.obstacles.splice(i, 1);
+                continue;
+              } else if (this.invincibleTimer <= 0) {
+                this.hearts--;
+                this.invincibleTimer = 1.5;
+                AudioSynth.play('crash');
+                UI.shakeStage();
+                if (this.hearts <= 0) {
+                  this.syncHUD();
+                  GameManager.finishGame({ won: false, score: this.score });
+                  return;
+                }
+              }
+            } else if (!o.nearMissed && o.y > riderY + 24 && Math.abs(o.visualX - this.riderVisualX) < 68) {
+              o.nearMissed = true;
+              this.score += 5;
+            }
+
+            if (o.y > this.canvas.height + 80) {
+              this.obstacles.splice(i, 1);
+            }
+          }
+
+          // Update collectibles
+          for (let i = this.collectibles.length - 1; i >= 0; i--) {
+            const c = this.collectibles[i];
+            c.y += speed * dt;
+            const dy = Math.abs(c.y - riderY);
+            const dx = Math.abs(c.x - this.riderVisualX);
+            if (dy < 36 && dx < 32) {
+              if (c.kind === 'parcel') {
+                this.parcels++;
+                this.score += 50;
+                AudioSynth.play('pickup');
+                if (this.parcels >= this.cfg.goalParcels) {
+                  this.syncHUD();
+                  GameManager.finishGame({ won: true, score: this.score });
+                  return;
+                }
+              } else {
+                this.score += 10;
+                AudioSynth.play('tap');
+              }
+              this.collectibles.splice(i, 1);
+              continue;
+            }
+            if (c.y > this.canvas.height + 50) {
+              this.collectibles.splice(i, 1);
+            }
+          }
+
+          this.syncHUD();
+        },
+
+        renderFrame() {
+          const ctx = this.ctx;
+          const w = this.canvas.width;
+          const h = this.canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          const roadLeft = w * 0.16;
+          const roadWidth = w * 0.68;
+          const roadRight = roadLeft + roadWidth;
+          const laneW = roadWidth / 3;
+
+          // Sidewalk / Dhaka Rooftop Parallax Margins
+          ctx.fillStyle = '#2E2E2E';
+          ctx.fillRect(0, 0, roadLeft, h);
+          ctx.fillRect(roadRight, 0, w - roadRight, h);
+
+          // Parallax rooftop architectural blocks along sides
+          ctx.fillStyle = '#1C1C1C';
+          for (let y = -120 + this.skylineOffset; y < h; y += 120) {
+            ctx.fillRect(6, y, roadLeft - 14, 72);
+            ctx.fillRect(roadRight + 8, y + 36, w - roadRight - 14, 76);
+            // Rooftop water tank detail
+            ctx.strokeStyle = '#9A9A9A';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(14, y + 12, 18, 18);
+            ctx.strokeRect(roadRight + 16, y + 48, 18, 18);
+          }
+
+          // Road Surface
+          ctx.fillStyle = '#F4F4F2';
+          ctx.fillRect(roadLeft, 0, roadWidth, h);
+
+          // Curbs
+          ctx.fillStyle = '#1C1C1C';
+          ctx.fillRect(roadLeft - 4, 0, 4, h);
+          ctx.fillRect(roadRight, 0, 4, h);
+
+          // Lane Dividers
+          ctx.strokeStyle = '#9A9A9A';
+          ctx.lineWidth = 2.5;
+          ctx.setLineDash([24, 24]);
+          ctx.lineDashOffset = -this.roadOffset;
+          for (let l = 1; l <= 2; l++) {
+            const lx = roadLeft + laneW * l;
+            ctx.beginPath();
+            ctx.moveTo(lx, 0);
+            ctx.lineTo(lx, h);
+            ctx.stroke();
+          }
+          ctx.setLineDash([]);
+
+          // Draw Obstacles
+          this.obstacles.forEach((o) => {
+            ctx.save();
+            ctx.translate(o.visualX, o.y);
+            if (o.kind === 'pothole') {
+              ctx.fillStyle = '#1C1C1C';
+              ctx.beginPath();
+              ctx.ellipse(0, 0, 20, 12, 0, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.strokeStyle = '#FF4D2E';
+              ctx.lineWidth = 2;
+              ctx.stroke();
+            } else if (o.kind === 'puddle') {
+              ctx.fillStyle = '#9A9A9A';
+              ctx.beginPath();
+              ctx.ellipse(0, 0, 22, 13, 0, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.strokeStyle = '#1C1C1C';
+              ctx.lineWidth = 1.5;
+              ctx.stroke();
+            } else if (o.kind === 'rickshaw') {
+              // Rickshaw silhouette
+              ctx.fillStyle = '#1C1C1C';
+              ctx.fillRect(-17, -22, 34, 34);
+              ctx.fillStyle = '#FFFFFF';
+              ctx.fillRect(-13, -18, 26, 14);
+              ctx.fillStyle = '#FF4D2E';
+              ctx.fillRect(-6, 12, 12, 6);
+            } else if (o.kind === 'car') {
+              ctx.fillStyle = '#2E2E2E';
+              ctx.beginPath();
+              ctx.roundRect(-18, -26, 36, 52, 8);
+              ctx.fill();
+              ctx.fillStyle = '#F4F4F2';
+              ctx.fillRect(-13, -12, 26, 14);
+            } else if (o.kind === 'bus') {
+              ctx.fillStyle = '#1C1C1C';
+              ctx.beginPath();
+              ctx.roundRect(-20, -34, 40, 68, 6);
+              ctx.fill();
+              ctx.fillStyle = '#FFFFFF';
+              ctx.fillRect(-15, -26, 30, 12);
+              ctx.fillStyle = '#FF4D2E';
+              ctx.fillRect(-15, 24, 30, 5);
+            }
+            ctx.restore();
+          });
+
+          // Draw Collectibles (Parcels with circular rman logo & Tag Coins)
+          this.collectibles.forEach((c) => {
+            ctx.save();
+            ctx.translate(c.x, c.y);
+            if (c.kind === 'parcel') {
+              ctx.fillStyle = '#1C1C1C';
+              ctx.beginPath();
+              ctx.roundRect(-16, -16, 32, 32, 7);
+              ctx.fill();
+              ctx.strokeStyle = '#FF4D2E';
+              ctx.lineWidth = 2;
+              ctx.stroke();
+              if (this.logoImg && this.logoImg.complete) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(0, 0, 10, 0, Math.PI * 2);
+                ctx.clip();
+                ctx.drawImage(this.logoImg, -10, -10, 20, 20);
+                ctx.restore();
+              }
+            } else {
+              ctx.fillStyle = '#FFFFFF';
+              ctx.beginPath();
+              ctx.arc(0, 0, 11, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.strokeStyle = '#1C1C1C';
+              ctx.lineWidth = 2.5;
+              ctx.stroke();
+              ctx.fillStyle = '#FF4D2E';
+              ctx.beginPath();
+              ctx.arc(0, 0, 4, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            ctx.restore();
+          });
+
+          // Draw Rider Scooter + Parcel Box with Circular rman Logo
+          const riderY = h - 96;
+          const blinkHide = this.invincibleTimer > 0 && Math.floor(this.invincibleTimer * 12) % 2 === 0;
+          if (!blinkHide) {
+            ctx.save();
+            ctx.translate(this.riderVisualX, riderY);
+
+            if (this.jumpTimer > 0) {
+              const jumpArc = Math.sin((this.jumpTimer / this.jumpDuration) * Math.PI);
+              // Ground shadow
+              ctx.fillStyle = 'rgba(28,28,28,0.22)';
+              ctx.beginPath();
+              ctx.ellipse(0, 10, 14, 8, 0, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.translate(0, -jumpArc * 22);
+              ctx.scale(1 + jumpArc * 0.22, 1 + jumpArc * 0.22);
+            }
+
+            // Handlebars
+            ctx.strokeStyle = '#1C1C1C';
+            ctx.lineWidth = 3.5;
+            ctx.beginPath();
+            ctx.moveTo(-16, -18);
+            ctx.lineTo(16, -18);
+            ctx.stroke();
+
+            // Scooter body
+            ctx.fillStyle = '#2E2E2E';
+            ctx.beginPath();
+            ctx.roundRect(-13, -24, 26, 50, 10);
+            ctx.fill();
+
+            // Rider helmet
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(0, -8, 9, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#1C1C1C';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Near-black Parcel Box on back of scooter
+            ctx.fillStyle = '#1C1C1C';
+            ctx.beginPath();
+            ctx.roundRect(-14, 2, 28, 26, 5);
+            ctx.fill();
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Circular rman logo inside parcel box
+            if (this.logoImg && this.logoImg.complete) {
+              ctx.save();
+              ctx.beginPath();
+              ctx.arc(0, 15, 9, 0, Math.PI * 2);
+              ctx.clip();
+              ctx.drawImage(this.logoImg, -9, 6, 18, 18);
+              ctx.restore();
+            }
+
+            ctx.restore();
+          }
+        },
+
+        syncHUD() {
+          UI.updateHUD({
+            score: this.score,
+            combo: 1,
+            timeRemaining: this.timeLeft,
+            totalTime: this.cfg.time,
+            statusLabelKey: 'hudProgress',
+            statusValue: `♥ ${this.hearts} · 📦 ${this.parcels}/${this.cfg.goalParcels}`
+          });
+        },
+
+        loop(ts) {
+          if (!this.lastTs) this.lastTs = ts;
+          const rawDt = (ts - this.lastTs) / 1000;
+          this.lastTs = ts;
+          const dt = Math.min(rawDt, 0.05);
+
+          this.update(dt);
+          if (GameManager.currentGameId === 'dhakaDash' && !GameManager.isPaused) {
+            this.renderFrame();
+            this.rafId = requestAnimationFrame((t) => this.loop(t));
+          }
+        },
+
+        start() {
+          this.resume();
+        },
+
+        pause() {
+          if (this.rafId) {
+            cancelAnimationFrame(this.rafId);
+            this.rafId = null;
+          }
+        },
+
+        resume() {
+          this.pause();
+          this.lastTs = performance.now();
+          this.rafId = requestAnimationFrame((t) => this.loop(t));
+        },
+
+        onLangChange() {
+          this.syncHUD();
+        },
+
+        destroy() {
+          this.pause();
+          if (this.keyHandler) {
+            window.removeEventListener('keydown', this.keyHandler);
+            this.keyHandler = null;
+          }
+        }
+      };
+
+      /* ==========================================
+         12. GAME 4 CONTROLLER — "RACK SORTER"
+         ========================================== */
+      const RackSorterGame = {
+        diff: 'easy',
+        cfg: null,
+        rafId: null,
+        lastTs: 0,
+        score: 0,
+        correctCount: 0,
+        consecutiveCorrect: 0,
+        mistakes: 0,
+        timeLeft: 60,
+        elapsed: 0,
+        spawnClock: 0,
+        beltItems: [],
+        upcomingQueue: [],
+        recentCategories: [],
+        nextUid: 1,
+        keyHandler: null,
+
+        init(difficulty) {
+          this.diff = difficulty;
+          this.cfg = Config.rackSorter[difficulty];
+          this.score = 0;
+          this.correctCount = 0;
+          this.consecutiveCorrect = 0;
+          this.mistakes = 0;
+          this.timeLeft = this.cfg.time;
+          this.elapsed = 0;
+          this.spawnClock = 0.2;
+          this.beltItems = [];
+          this.upcomingQueue = [];
+          this.recentCategories = [];
+          this.nextUid = 1;
+
+          for (let i = 0; i < 4; i++) {
+            this.upcomingQueue.push(this.generateNextItem());
+          }
+          // Spawn initial item on belt immediately so player has an active item at t=0
+          this.spawnFromQueue();
+          this.spawnClock = this.cfg.spawnInterval;
+
+          this.renderRacks();
+          this.renderQueue();
+          this.renderBeltItems();
+          this.bindControls();
+          this.syncHUD();
+        },
+
+        mapItemToRackId(garment, isDefect) {
+          if (isDefect) return 'defect';
+          if (this.diff === 'easy') {
+            return garment.slot === 'top' ? 'top' : 'bottom';
+          }
+          if (this.diff === 'medium') {
+            if (garment.slot === 'top') return 'top';
+            if (garment.slot === 'bottom') return 'bottom';
+            return 'foot_acc';
+          }
+          return garment.slot;
+        },
+
+        generateNextItem() {
+          let pool = Garments;
+          if (this.diff === 'easy') {
+            pool = Garments.filter((g) => g.slot === 'top' || g.slot === 'bottom');
+          }
+
+          let garment = Utils.pick(pool);
+          let isDefect = this.cfg.defects && Math.random() < 0.22;
+          let targetRack = this.mapItemToRackId(garment, isDefect);
+
+          // Enforce <= 3 identical target categories in a row
+          const len = this.recentCategories.length;
+          if (
+            len >= 3 &&
+            this.recentCategories[len - 1] === targetRack &&
+            this.recentCategories[len - 2] === targetRack &&
+            this.recentCategories[len - 3] === targetRack
+          ) {
+            const alternatives = pool.filter((g) => this.mapItemToRackId(g, false) !== targetRack);
+            if (alternatives.length > 0) {
+              garment = Utils.pick(alternatives);
+              isDefect = false;
+              targetRack = this.mapItemToRackId(garment, false);
+            }
+          }
+
+          this.recentCategories.push(targetRack);
+          return {
+            uid: this.nextUid++,
+            garment,
+            isDefect,
+            targetRack,
+            progress: 12 // percentage along belt (12% to 92%)
+          };
+        },
+
+        spawnFromQueue() {
+          const next = this.upcomingQueue.shift();
+          this.upcomingQueue.push(this.generateNextItem());
+          this.beltItems.push(next);
+          this.renderQueue();
+        },
+
+        getFrontItem() {
+          if (this.beltItems.length === 0) return null;
+          // Front item is the one furthest along the belt (highest progress)
+          let front = this.beltItems[0];
+          for (let i = 1; i < this.beltItems.length; i++) {
+            if (this.beltItems[i].progress > front.progress) {
+              front = this.beltItems[i];
+            }
+          }
+          return front;
+        },
+
+        sendToRack(rackId) {
+          if (GameManager.isPaused || GameManager.inCountdown) return;
+          const front = this.getFrontItem();
+          if (!front) return;
+
+          const idx = this.beltItems.indexOf(front);
+          if (idx !== -1) this.beltItems.splice(idx, 1);
+
+          if (front.targetRack === rackId) {
+            this.correctCount++;
+            this.consecutiveCorrect++;
+            const mult = Math.min(5, 1 + Math.floor(this.consecutiveCorrect / 5));
+            const ratio = (front.progress - 12) / 80;
+            const speedBonus = ratio < 0.45 ? 5 : ratio < 0.7 ? 2 : 0;
+            this.score += 10 * mult + speedBonus;
+
+            AudioSynth.play(this.consecutiveCorrect % 5 === 0 ? 'combo' : 'correct');
+
+            if (this.correctCount >= this.cfg.goal) {
+              this.syncHUD();
+              GameManager.finishGame({ won: true, score: this.score });
+              return;
+            }
+            if (this.beltItems.length === 0) {
+              this.spawnFromQueue();
+            }
+          } else {
+            this.recordMistake();
+          }
+
+          this.renderBeltItems();
+          this.syncHUD();
+        },
+
+        recordMistake() {
+          this.mistakes++;
+          this.consecutiveCorrect = 0;
+          AudioSynth.play('wrong');
+          UI.shakeStage();
+
+          if (this.mistakes > this.cfg.mistakesAllowed) {
+            this.syncHUD();
+            GameManager.finishGame({ won: false, score: this.score });
+            return;
+          }
+          if (this.beltItems.length === 0) {
+            this.spawnFromQueue();
+          }
+        },
+
+        renderRacks() {
+          const grid = document.getElementById('rs-racks-grid');
+          const count = this.cfg.racks.length;
+          grid.className = 'rs-racks-grid cols-' + count;
+          grid.innerHTML = '';
+
+          this.cfg.racks.forEach((r) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'rs-rack-btn' + (r.isReturn ? ' return-bin' : '');
+            btn.dataset.rackId = r.id;
+            const name = i18n.t(r.labelKey);
+            btn.setAttribute('aria-label', `${name} [${r.key}]`);
+            btn.innerHTML = `
+              <span class="rs-rack-key">[${r.key}]</span>
+              <span class="rs-rack-name">${name}</span>
+            `;
+            btn.addEventListener('click', () => this.sendToRack(r.id));
+            grid.appendChild(btn);
+          });
+        },
+
+        renderQueue() {
+          const qWrap = document.getElementById('rs-queue-items');
+          qWrap.innerHTML = this.upcomingQueue
+            .slice(0, 3)
+            .map((item) => `
+              <div class="rs-queue-chip ${item.isDefect ? 'defect' : ''}">
+                ${renderGarmentSVG(item.garment)}
+              </div>
+            `)
+            .join('');
+        },
+
+        renderBeltItems() {
+          const container = document.getElementById('rs-belt-items');
+          container.innerHTML = '';
+          const front = this.getFrontItem();
+          const isBn = i18n.lang === 'bn';
+
+          this.beltItems.forEach((item) => {
+            const isFront = front && front.uid === item.uid;
+            const el = document.createElement('div');
+            el.className = 'rs-belt-item' + (isFront ? ' front-target' : '');
+            el.style.left = item.progress + '%';
+            const name = isBn ? item.garment.nameBn : item.garment.nameEn;
+            el.innerHTML = `
+              ${item.isDefect ? `<span class="rs-defect-badge">${i18n.t('defectText')}</span>` : ''}
+              ${renderGarmentSVG(item.garment)}
+              <span class="rs-belt-item-label">${name}</span>
+            `;
+            // Pointer swipe/drag support on belt items toward racks
+            el.addEventListener('pointerdown', (ev) => {
+              const startX = ev.clientX;
+              const startY = ev.clientY;
+              const onUp = (upEv) => {
+                window.removeEventListener('pointerup', onUp);
+                const rackBtns = Array.from(document.querySelectorAll('#rs-racks-grid .rs-rack-btn'));
+                for (let r = 0; r < rackBtns.length; r++) {
+                  const rect = rackBtns[r].getBoundingClientRect();
+                  if (upEv.clientX >= rect.left - 16 && upEv.clientX <= rect.right + 16 && upEv.clientY >= rect.top - 24 && upEv.clientY <= rect.bottom + 24) {
+                    this.sendToRack(rackBtns[r].dataset.rackId);
+                    return;
+                  }
+                }
+                const dx = upEv.clientX - startX;
+                const dy = upEv.clientY - startY;
+                if (Math.hypot(dx, dy) > 28 && rackBtns.length > 0) {
+                  const ratio = Utils.clamp(upEv.clientX / window.innerWidth, 0, 0.99);
+                  const idx = Math.floor(ratio * rackBtns.length);
+                  this.sendToRack(rackBtns[idx].dataset.rackId);
+                }
+              };
+              window.addEventListener('pointerup', onUp);
+            });
+            container.appendChild(el);
+          });
+
+          const hintEl = document.getElementById('rs-target-hint');
+          if (front) {
+            const fname = isBn ? front.garment.nameBn : front.garment.nameEn;
+            hintEl.textContent = front.isDefect ? `${fname} (${i18n.t('defectText')})` : fname;
+          } else {
+            hintEl.textContent = '';
+          }
+        },
+
+        bindControls() {
+          this.keyHandler = (e) => {
+            if (GameManager.currentGameId !== 'rackSorter' || GameManager.isPaused || GameManager.inCountdown) return;
+            const racks = this.cfg.racks;
+            const num = parseInt(e.key, 10);
+            if (num >= 1 && num <= racks.length) {
+              e.preventDefault();
+              this.sendToRack(racks[num - 1].id);
+              return;
+            }
+            if (e.key === 'ArrowLeft' && racks[0]) {
+              e.preventDefault();
+              this.sendToRack(racks[0].id);
+            } else if (e.key === 'ArrowRight' && racks[1]) {
+              e.preventDefault();
+              this.sendToRack(racks[1].id);
+            } else if (e.key === 'ArrowDown' && racks[2]) {
+              e.preventDefault();
+              this.sendToRack(racks[2].id);
+            } else if (e.key === 'ArrowUp' && racks[3]) {
+              e.preventDefault();
+              this.sendToRack(racks[3].id);
+            }
+          };
+          window.addEventListener('keydown', this.keyHandler);
+        },
+
+        update(dt) {
+          this.elapsed += dt;
+          this.timeLeft -= dt;
+          if (this.timeLeft <= 0) {
+            this.timeLeft = 0;
+            this.syncHUD();
+            GameManager.finishGame({ won: this.correctCount >= this.cfg.goal, score: this.score });
+            return;
+          }
+
+          const speedRamp = this.diff === 'hard' ? 1 + (this.elapsed / this.cfg.time) * 0.35 : 1;
+          const beltVelocity = this.cfg.beltSpeed * speedRamp;
+
+          this.spawnClock -= dt;
+          if (this.spawnClock <= 0) {
+            this.spawnFromQueue();
+            this.spawnClock = this.cfg.spawnInterval;
+          }
+
+          for (let i = this.beltItems.length - 1; i >= 0; i--) {
+            const item = this.beltItems[i];
+            item.progress += beltVelocity * dt;
+            if (item.progress >= 92) {
+              this.beltItems.splice(i, 1);
+              this.recordMistake();
+              if (GameManager.currentGameId !== 'rackSorter') return;
+            }
+          }
+
+          this.renderBeltItems();
+          this.syncHUD();
+        },
+
+        syncHUD() {
+          const mult = Math.min(5, 1 + Math.floor(this.consecutiveCorrect / 5));
+          UI.updateHUD({
+            score: this.score,
+            combo: mult,
+            timeRemaining: this.timeLeft,
+            totalTime: this.cfg.time,
+            statusLabelKey: 'hudMistakes',
+            statusValue: `✓ ${this.correctCount}/${this.cfg.goal} · ✕ ${this.mistakes}/${this.cfg.mistakesAllowed}`
+          });
+        },
+
+        loop(ts) {
+          if (!this.lastTs) this.lastTs = ts;
+          const rawDt = (ts - this.lastTs) / 1000;
+          this.lastTs = ts;
+          const dt = Math.min(rawDt, 0.05);
+
+          this.update(dt);
+          if (GameManager.currentGameId === 'rackSorter' && !GameManager.isPaused) {
+            this.rafId = requestAnimationFrame((t) => this.loop(t));
+          }
+        },
+
+        start() {
+          this.resume();
+        },
+
+        pause() {
+          if (this.rafId) {
+            cancelAnimationFrame(this.rafId);
+            this.rafId = null;
+          }
+        },
+
+        resume() {
+          this.pause();
+          this.lastTs = performance.now();
+          this.rafId = requestAnimationFrame((t) => this.loop(t));
+        },
+
+        onLangChange() {
+          this.renderRacks();
+          this.renderBeltItems();
+          this.syncHUD();
+        },
+
+        destroy() {
+          this.pause();
+          if (this.keyHandler) {
+            window.removeEventListener('keydown', this.keyHandler);
+            this.keyHandler = null;
+          }
+        }
+      };
+
+      /* ==========================================
+         13. BOOTSTRAP APPLICATION
+         ========================================== */
+      GameManager.register('styleBrief', StyleBriefGame);
+      GameManager.register('tagMatch', TagMatchGame);
+      GameManager.register('dhakaDash', DhakaDashGame);
+      GameManager.register('rackSorter', RackSorterGame);
+
+      Storage.init();
+      UI.init();
+    })();
+  </script>
+</body>
+</html>
